@@ -1,0 +1,80 @@
+<?php
+
+use App\Http\Controllers\BarangController;
+
+use App\Http\Controllers\AuthController;
+
+use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\HomeController;
+
+use App\Http\Controllers\TelegramController;
+
+use App\Http\Controllers\UserCOntroller;
+use Barryvdh\DomPDF\PDF;
+
+Route::get('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/login', [AuthController::class, 'authenticate'])->name('login.auth');
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout.auth');
+
+Route::group([], __DIR__ . '/home.php');
+
+Route::get('/', [HomeController::class, 'index'])->name('admin.index');
+
+Route::get('/nota', function () {
+    $pdf = PDF::loadview('nota');
+    return $pdf->stream('laporan-pegawai.pdf');
+});
+Route::get('/set', function () {
+    $env = config('app.telegram.bot_token');
+    $ngrok = 'https://fc40-114-142-168-57.ngrok-free.app';
+    $uri = '/telegram/webhook/';
+    $url = $ngrok.$uri;
+
+    $x = "https://api.telegram.org/bot".$env."/setWebhook?url=".$url.$env;
+
+    return '<script>window.open("' . $x . '", "_blank");</script>';
+   
+});
+
+Route::group(['prefix' => 'telegram'], function(){
+    // Route::get('messages', [TelegramController::class, 'messages']);
+    Route::get('messages', [TelegramController::class,'sendMessage']);
+
+    Route::get('set-webhook', [TelegramController::class,'setWebhook']);
+    // Route::match(['get','post'],'webhook/{token}', [TelegramController::class,]'webhook');
+    Route::match(['get','post'],'webhook/'. env('TELEGRAM_BOT_TOKEN'), [TelegramController::class,'webhook']);
+});
+
+
+
+Route::group(['middleware' => ['cekrole:Pemilik']], function(){
+    Route::get('/barang', [BarangController::class, 'index'])->name('barang.index');
+
+
+    Route::get('/barang/create', [BarangController::class, 'create'])->name('barang.create');
+    Route::get('/barang/variasi/{id}', [BarangController::class, 'variasi'])->name('variasi.create');
+    Route::get('/barang/edit/variasi/{id}', [BarangController::class, 'variasi'])->name('variasi.edit');
+    Route::get('/barang/edit/{id}', [BarangController::class, 'edit'])->name('barang.edit');
+    Route::get('/barang/detail/{barang}', [BarangController::class, 'show'])->name('barang.detail');
+    Route::POST('/barang/store', [BarangController::class, 'store'])->name('barang.store');
+    Route::put('/barang/update/{id}', [BarangController::class, 'update'])->name('barang.update');
+    Route::post('/barang/delete', [BarangController::class, 'destroy'])->name('barang.delete');
+
+    
+    // Route::get('/penjualan/nota/{key}', [PenjualanController::class, 'nota'])->name('penjualan.nota');
+
+    // Route::get('/penjualan/cetak', [PenjualanController::class, 'cetak_pdf'])->name('penjualan.cetak');
+    // Route::get('/penjualan/cek/{id}', [PenjualanController::class, 'cek'])->name('penjualan.cek');
+    // Route::get('/penjualan/cetak-pdf', [PenjualanController::class, 'pdf'])->name('penjualan.c');
+    
+   
+    Route::get('/user', [UserCOntroller::class, 'index'])->name('user.index');
+    Route::POST('/user/store', [UserCOntroller::class, 'store'])->name('user.store');
+    Route::PUT('/user/update/{id}', [UserCOntroller::class, 'update'])->name('user.update');
+    Route::post('/user/delete', [UserCOntroller::class, 'destroy'])->name('user.delete');
+
+
+    Route::get('/profile', [AuthController::class, 'profile'])->name('user.profile');
+    Route::post('/store/password', [AuthController::class, 'ubahpwstore'])->name('ubahpwstore');
+});
