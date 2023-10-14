@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Barang;
+use App\Models\Pesanan;
 use App\Models\BarangDetail;
 use App\Models\Gambar;
 use Illuminate\Http\Request;
-class BarangController extends Controller
+class PesananController extends Controller
 {
 
     public function index()
     {
-        $data = Barang::orderBy('id', 'desc')->where('status', 1)->get();
+        $data = Pesanan::orderBy('id', 'desc')->where('status', 1)->get();
+
+        dd($data);
         return view('barang.index', compact('data'));
     }
 

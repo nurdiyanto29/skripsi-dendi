@@ -34,8 +34,19 @@ class PembayaranController extends Controller
         $days = $interval->days;
         $now = Carbon::now();
 
+
+
+        if ($req->hasFile('file')) {
+            $imageName = time().'.'.$req->file->extension();
+    
+            $req->file->move(public_path('uploads/bukti_bayar'), $imageName);
+        } else {
+            // Jika gambar tidak diunggah, atur $imageName menjadi null atau nilai default yang sesuai
+            $imageName = null;
+        }
+
         $data = [
-            'bukti_bayar' => $req->file,
+            'bukti_bayar' => $imageName,
             'status' => 1,
             'tipe_bayar' => $req->tipe_bayar,
             'mulai' => $now,
@@ -43,25 +54,6 @@ class PembayaranController extends Controller
         ];
         $e->update($data);
 
-        $image = [];
-
-        if ($req->hasFile('file')) {
-            $file = $req->file('file');
-            // dd(1);
-            $image_name = md5(rand(1000, 10000));
-            $ext = strtolower($file->getClientOriginalExtension());
-            $image_full_name = $image_name . '.' . $ext;
-            $uploade_path = 'uploads/bukti_bayar/';
-            $image_url = $uploade_path . $image_full_name;
-            $file->move($uploade_path, $image_full_name);
-            $image[] = $image_url;
-        }
-
-        $pesanan = Pesanan::where('user_id', Auth::user()->id)->get();
-
-
-        dd('$sukses terbayar');
-
-        // return redirect()->route('home.pesanan.index' ,['data' => $pesanan]);
+        return redirect()->back()->with('success', 'Barang Berhasil terbayar');
     }
 }

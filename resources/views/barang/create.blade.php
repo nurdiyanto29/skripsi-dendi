@@ -6,9 +6,9 @@
 @push('css')
     <style>
         /* .error {
-                        color: red;
-                        font-weight: 400px;
-                    } */
+                                color: red;
+                                font-weight: 400px;
+                            } */
 
         .ck-editor__editable {
             min-height: 200px;
@@ -70,32 +70,38 @@
                                     <div class="errr">
                                         <div class="errorTxt"></div>
                                     </div>
-                                    <div class="form-group">
-                                        <label style="color: #6c757d">Nama Barang</label>
-                                        <input type="text" class="form-control" id="nama" name="nama" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label style="color: #6c757d">Harga sewa</label>
-                                        <input type="text" class="form-control" id="harga_sewa" name="harga_sewa"
-                                            required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label style="color: #6c757d">Stok Awal</label>
-                                        <input type="number" class="form-control" id="stok" name="stok" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label style="color: #6c757d">Deskripsi</label>
-                                        <textarea name="deskripsi" class="form-control" rows="3" placeholder="Enter ..."></textarea>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label style="color: #6c757d">Gambar</label>
-                                        <div class="input-images">
+                                    <div class="row">
+                                        <div class="form-group col-6">
+                                            <label style="color: #6c757d">Nama Barang</label>
+                                            <input type="text" class="form-control" id="nama" name="nama"
+                                                required>
+                                        </div>
+                                        <div class="form-group col-6">
+                                            <label style="color: #6c757d">Harga sewa</label>
+                                            <input type="text" class="form-control" id="harga_sewa" name="harga_sewa"
+                                                required>
                                         </div>
                                     </div>
-                                    {{-- <div class="card-footer"> --}}
+                                    <div class="row">
+                                        <div class="form-group col-6">
+                                            <label style="color: #6c757d">Stok Awal</label>
+                                            <input type="number" class="form-control" id="stok" name="stok"
+                                                required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group col-6">
+                                            <label style="color: #6c757d">Deskripsi</label>
+                                            <textarea name="deskripsi" class="form-control" rows="3" placeholder="Enter ..."></textarea>
+                                        </div>
+
+                                        <div class="form-group col-6">
+                                            <label style="color: #6c757d">Gambar</label>
+                                            <div class="input-images">
+                                            </div>
+                                        </div>
+                                    </div>
                                     <button type="submit" class="btn btn-primary">Submit</button>
-                                    {{-- </div> --}}
                             </form>
                         </div>
                         <!-- /.card -->
@@ -118,9 +124,9 @@
         <script>
             $(document).ready(function() {
                 $('.input-images').imageUploader({
-                extensions: [".jpg", ".jpeg", ".png", ".gif", ".svg"],
-                imagesInputName: "file"
-            });
+                    extensions: [".jpg", ".jpeg", ".png", ".gif", ".svg"],
+                    imagesInputName: "file"
+                });
             });
         </script>
     @endpush

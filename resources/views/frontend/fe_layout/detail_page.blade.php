@@ -137,7 +137,8 @@
                         <form action="{{ route('home.pesanan.waiting.store') }}" method="POST">
                             @csrf
 
-                            <input type="hidden" class="form-control" name="barang_id" id="" value="{{$data->id}}">
+                            <input type="hidden" class="form-control" name="barang_id" id=""
+                                value="{{ $data->id }}">
 
                             <button type="submit"
                                 class="primary-btn text-uppercase">{{ Auth::check() ? 'Daftar Waiting List' : 'Silahkan Daftar/Login Lebih Dulu' }}</button>
@@ -151,14 +152,16 @@
                             @csrf
                             <div class="form-row">
                                 @php
-                                    $date = date('Y-m-d');
+                                    $date = tgl(date('Y-m-d')) . ' ' . date('H:i');
                                 @endphp
                                 <div class="form-group col-md-12">
                                     <label for="">Tanggal Mulai Sewa</label>
-                                    <input type="date" class="form-control" name="tanggal" id=""
-                                        min="<?php echo date('Y-m-d'); ?>" max="<?php echo date('Y-m-d', strtotime('+3 days')); ?>" value="{{ $date }}"
+                                    <input type="text" class="form-control" id="" value="{{ $date }}"
                                         readonly @if (!Auth::check()) disabled @endif>
+
                                 </div>
+
+                                <input type="hidden" name="tanggal" value="{{ date('Y-m-d') }}">
                                 <input type="hidden" name="_id" value="{{ $data->id }}">
                                 <div style="display: none" class="form-group col-md-12">
                                     <label for="">Jam Mulai</label>

@@ -45,25 +45,25 @@
             </div>
             {{-- @dd($data) --}}
             @php
-                
+
                 $foto = $data->barangDetail->barang->gambar()->first()->file ?? null;
                 $item_list = $item_list ?? [];
-                
+
                 // Tanggal dan jam masuk
                 $mulai = strtotime($data->barangDetail->mulai);
-                
+
                 // Tanggal dan jam keluar
                 $kembali = strtotime($data->barangDetail->kembali);
-                
+
                 $diffInDays = ($kembali - $mulai) / (60 * 60 * 24);
-                
+
                 $total_bayar = $diffInDays * $data->barangDetail->barang->harga_sewa;
-                
+
                 //
                 $waktu_setelah_penambahan = strtotime('+12 hours', $mulai);
-                
+
                 $akhir = date('Y-m-d H:i:s', $waktu_setelah_penambahan);
-                
+
             @endphp
             <div class="row">
                 <div class="col-lg-8 left-contents">
@@ -80,25 +80,38 @@
                     <h3>Pembayaran </h3>
                     <br>
                     <div class="alert alert-primary" role="alert">
-                        @if ($data->status)
-                            Terimakasih pesanan sudah terbayar
-                        @else
-                            Batas akhir pembayaran adalah 12 jam setelah pesanan ini dibuat( {{ tgl_full($akhir) }})
+                        @if ($data->status && $data->tipe_bayar == 'cod')
+                            Terimakasih pesanan sudah terbayar dengan metode COD. Hubungi Customer untuk info lebih lanjut
+                        @endif
+
+                        @if ($data->tipe_bayar == 'tf' && $data->status == 0)
+                        @endif
+                        @if ($data->tipe_bayar == 'tf' && $data->status == 1)
+                            Terimakasih telah melakukan pembayaran secara transfer. Pesanan sudah terkonfirmasi
+                        @endif
+
+                        @if ($data->status == 0 && $data->tipe_bayar == 'null')
+                        Batas akhir pembayaran adalah 12 jam setelah pesanan ini dibuat( {{ tgl_full($akhir) }})
                         @endif
                     </div>
                     <form action="{{ route('home.pembayaran.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
-                        <div class="form-row">
+                        <div class="form-row mb-3">
                             <input type="hidden" name="_id" value="{{ $data->id }}">
+
+                            <input type="hidden" class="form-control" value="{{ tgl($data->mulai) }}">
+
+                            <input type="hidden" class="form-control" value="{{ tgl($data->kembali) }}">
+
                             <div class="form-group col-md-12">
                                 <label for="">Tanggal Sewa</label>
                                 <input type="text" class="form-control" name="tanggal" disabled
-                                    value="{{ tgl($data->mulai) }}">
+                                    value="{{ tgl_full($data->mulai) }}">
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="">Tanggal Kembali</label>
                                 <input type="text" class="form-control" name="tanggal" disabled
-                                    value="{{ tgl($data->kembali) }}">
+                                    value="{{ tgl_full($data->kembali) }}">
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="">Jumlah Hari</label>
@@ -134,8 +147,15 @@
                                 </div>
 
                         </div>
-                        <button type="submit"
-                            class="primary-btn text-uppercase">{{ Auth::check() ? 'Bayar' : 'Silahkan Daftar/Login Lebih Dulu' }}</button>
+                        @endif
+                        @if (Auth::check() && $data->tipe_bayar == null)
+                            <button type="submit" class="primary-btn text-uppercase">Bayar
+                            </button>
+                        @endif
+                        @if (Auth::check() == false)
+                            <a class="primary-btn text-uppercase" href="{{ route('login') }}">
+                                Login
+                            </a>
                         @endif
                     </form>
                 </div>

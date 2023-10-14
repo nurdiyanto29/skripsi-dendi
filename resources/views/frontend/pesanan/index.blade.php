@@ -43,7 +43,7 @@
                                     <th scope="col">Kembali</th>
 
                                     <th scope="col">Total Bayar</th>
-                                    {{-- <th scope="col">Bukti Bayar</th> --}}
+                                    <th scope="col">Tipe Pembayaran</th>
                                     <th scope="col">Status</th>
                                 </tr>
                             </thead>
@@ -61,8 +61,15 @@
                                         <td>{{ tgl_full($item->mulai) }}</td>
                                         <td>{{ tgl_full($item->kembali) }}</td>
                                         <td>{{ rp($item->total) }}</td>
+                                        @if ($item->tipe_bayar == 'tf')
+                                        <td>
+                                            <a href="{{url('/uploads/bukti_bayar/'.$item->bukti_bayar)}}" target="_blank" >{{ $item->tipe_bayar == 'tf' ? 'Transfer' : 'COD'  }}</a>
+                                        </td>
+                                        @else
+                                        <td>COD</td> 
+                                        @endif  
                                         <td>{{ $item->status ? 'LUNAS' : 'BELUM DIBAYAR' }}</td>
-
+                                        
                                     </tr>
                                 @endforeach
                             </tbody>

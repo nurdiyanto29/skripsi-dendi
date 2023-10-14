@@ -65,16 +65,7 @@ class PesananController extends Controller
                     'penyewa' => Auth::user()->id,
                 ]);
 
-                $responseText = 'Data Penyewaan berhasil di tambahkan berikut adalah informasi sewa anda' . "\n";
-                $responseText .= "\n";
-                $responseText .= "Nama Barang: $barang->nama\n";
-                $responseText .= "Kode Barang: $barang->kode_barang\n";
-                $responseText .= "Mulai sewa: $tanggal_jam \n";
-                $responseText .= "Kembali sewa: $kembali \n";
-                $link = 'https://example.com';
-
-                $responseText .= "Anda dapat segera melakukan pembayaran melalui link berikut ini " . $link . "\n";
-                $responseText .= "\n";
+               
             } else {
                 // $br = BarangDetail::where([
                 //     'barang_id' => $barang->id,
@@ -101,7 +92,20 @@ class PesananController extends Controller
                 'mulai' => $tanggal_jam,
                 'kembali' => $kembali,
                 'total' => $bd->barang->harga_sewa * $req->hari,
+
+                
             ]);
+
+            $responseText = 'Data Penyewaan berhasil di tambahkan berikut adalah informasi sewa anda' . "\n";
+            $responseText .= "\n";
+            $responseText .= "Nama Barang: $barang->nama\n";
+            $responseText .= "Kode Barang: $barang->kode_barang\n";
+            $responseText .= "Mulai sewa: $tanggal_jam \n";
+            $responseText .= "Kembali sewa: $kembali \n";
+            $link = config('base.url').'/dashboard/pembayaran/create?brg_dtl='.$data_order->id;
+
+            $responseText .= "Anda dapat segera melakukan pembayaran melalui link berikut ini " . $link . "\n";
+            $responseText .= "\n";
         } else {
             // $responseText = 'Format yang anda masukkan salah . kode barang ' . $kode . 'tidak di temukan' . "\n";
         }

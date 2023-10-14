@@ -7,7 +7,7 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\HomeController;
-
+use App\Http\Controllers\PesananController;
 use App\Http\Controllers\TelegramController;
 
 use App\Http\Controllers\UserCOntroller;
@@ -50,8 +50,8 @@ Route::group(['prefix' => 'telegram'], function(){
 
 Route::group(['middleware' => ['cekrole:Pemilik']], function(){
     Route::get('/barang', [BarangController::class, 'index'])->name('barang.index');
-
-
+    
+    
     Route::get('/barang/create', [BarangController::class, 'create'])->name('barang.create');
     Route::get('/barang/variasi/{id}', [BarangController::class, 'variasi'])->name('variasi.create');
     Route::get('/barang/edit/variasi/{id}', [BarangController::class, 'variasi'])->name('variasi.edit');
@@ -60,6 +60,15 @@ Route::group(['middleware' => ['cekrole:Pemilik']], function(){
     Route::POST('/barang/store', [BarangController::class, 'store'])->name('barang.store');
     Route::put('/barang/update/{id}', [BarangController::class, 'update'])->name('barang.update');
     Route::post('/barang/delete', [BarangController::class, 'destroy'])->name('barang.delete');
+    
+    
+    Route::get('/pesanan', [PesananController::class, 'index'])->name('pesanan.index');
+    Route::get('/pesananan/create', [PesananController::class, 'create'])->name('pesananan.create');
+    Route::get('/pesananan/edit/{id}', [PesananController::class, 'edit'])->name('pesananan.edit');
+    Route::get('/pesananan/detail/{pesananan}', [PesananController::class, 'show'])->name('pesananan.detail');
+    Route::POST('/pesananan/store', [PesananController::class, 'store'])->name('pesananan.store');
+    Route::put('/pesananan/update/{id}', [PesananController::class, 'update'])->name('pesananan.update');
+    Route::post('/pesananan/delete', [PesananController::class, 'destroy'])->name('pesananan.delete');
 
     
     // Route::get('/penjualan/nota/{key}', [PenjualanController::class, 'nota'])->name('penjualan.nota');
