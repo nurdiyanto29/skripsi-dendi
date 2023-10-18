@@ -378,7 +378,7 @@ class TelegramController extends Controller
                         $responseText = 'Format yang anda masukkan salah. Pastikan sudah sesuai dengan format yang telah di tentukan';
                     }
                 }
-            } elseif (strpos($text, '/JADIPESAN_') !== false) {
+            } elseif (strpos($text, '/JADIPSAN_') !== false) {
 
                 $tx = explode("_", $text);
                 $c = count($tx);
@@ -391,7 +391,55 @@ class TelegramController extends Controller
                     $wt->update([
                         'respon_user' => Carbon::now()
                     ]);
-                    $responseText = "josjis" . "\n";
+
+
+                    $barang_detail = BarangDetail::where('waiting_id', $wt->id)->first();
+                    if ($barang_detail) {
+                        $barang_detail->update([
+                            'penyewa' => $dt->id,
+                            'mulai' => Carbon::now(),
+                            'kembali' => NULL,
+                            'waiting_id' => NULL,
+                        ]);
+                    }
+                    $responseText = "Masukaan Jumlah hari pemesanan /haripemesanan_2" . "\n";
+                } else {
+                    $responseText = "luput" . "\n";
+                }
+            } elseif (strpos($text, '/JADIPESAN_') !== false) {
+
+                $tx = explode("_", $text);
+                $c = count($tx);
+                $dt = User::where('telegram_id', $chatId)->first();
+
+                $wt = WaitingList::find($tx[1]);
+
+
+
+                if ($wt) {
+                    $wt->update([
+                        'respon_user' => Carbon::now()
+                    ]);
+
+
+                    $barang_detail = BarangDetail::where('waiting_id', $wt->id)->first();
+                    if ($barang_detail) {
+                        $barang_detail->update([
+                            'penyewa' => $dt->id,
+                            'mulai' => Carbon::now(),
+                            'kembali' => NULL,
+                            // 'waiting_id' => NULL,
+                        ]);
+                    }
+
+
+                    $respon1 = 'copy data di bawah ini, paste dan masukkan jumlah hari';
+                    $this->sendTelegramMessage1($chatId, $respon1, $keyboard);
+               
+                    $responseText = "Kode Barang : " . $barang_detail->barang->kode_barang . "\n";
+                    $responseText .= "Nama Barang : "  . $barang_detail->barang->nama .   "\n";
+                    $responseText .= "Tanggal Sewa : " . Carbon::now() . "\n";
+                    $responseText .= "Jumlah Hari : " . "\n";
                 } else {
                     $responseText = "luput" . "\n";
                 }
@@ -479,7 +527,7 @@ class TelegramController extends Controller
                     $bd->update([
                         'mulai' => $newDateFormat . ' ' . $tmp['jam'] . ':00',
                         'status_sewa' => 1,
-                        'kembali' => $kembali. ' ' . $tmp['jam'] . ':00',
+                        'kembali' => $kembali . ' ' . $tmp['jam'] . ':00',
                         'penyewa' => $dt->id,
                     ]);
 
@@ -648,6 +696,20 @@ class TelegramController extends Controller
     // }
 
     private function sendTelegramMessage($chatId, $text, $keyboard)
+    {
+        $url = 'https://api.telegram.org/bot' . env('TELEGRAM_BOT_TOKEN') . '/sendMessage';
+        $messageData = [
+            'chat_id' => $chatId,
+            'text' => $text,
+        ];
+
+        if ($keyboard !== null) {
+            $messageData['reply_markup'] = json_encode($keyboard);
+        }
+
+        Telegram::sendMessage($messageData);
+    }
+    private function sendTelegramMessage1($chatId, $text, $keyboard)
     {
         $url = 'https://api.telegram.org/bot' . env('TELEGRAM_BOT_TOKEN') . '/sendMessage';
         $messageData = [

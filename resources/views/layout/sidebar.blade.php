@@ -60,7 +60,7 @@
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('user.index') }}" class="nav-link">
+                    <a href="{{ route('pesanan.index') }}" class="nav-link">
                         <i class="fas fa-list"></i>
                         <p>
                             &nbsp;&nbsp; Pesanan & Pembayaran

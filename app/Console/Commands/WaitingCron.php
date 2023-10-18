@@ -47,20 +47,9 @@ class WaitingCron extends Command
     {
         $now = Carbon::now();
         $no = Carbon::now();
-
         $add = $no->addHour(1);
         $overdueItems = BarangDetail::where('kembali', '<=', $now)->get();
-        // dd($overdueItems);
         Log::info("barang waiting" . $overdueItems);
-
-
-        // dd($overdueItems);
-        // $item->update([
-        //     'mulai' => NULL,
-        //     'kembali' => NULL,
-        //     'status_sewa' => 0,
-        // ]);
-
         foreach ($overdueItems as $item) {
 
             $waiting = WaitingList::where('barang_id',$item->barang_id)->orderBy('created_at', 'ASC')->first();
@@ -84,10 +73,6 @@ class WaitingCron extends Command
                     'waiting_id' => $waiting->id
                 ]);
             }
-
-
-
-
 
         }
         Log::info("Cron is working fine!" . $waiting);

@@ -47,7 +47,7 @@ class PembayaranController extends Controller
 
         $data = [
             'bukti_bayar' => $imageName,
-            'status' => 1,
+            'status' => 'terbayar belum terkonfirmasi',
             'tipe_bayar' => $req->tipe_bayar,
             'mulai' => $now,
             'kembali' => $now->addDays($days),

@@ -68,7 +68,7 @@
                                         @else
                                         <td>COD</td> 
                                         @endif  
-                                        <td>{{ $item->status ? 'LUNAS' : 'BELUM DIBAYAR' }}</td>
+                                        <td>{{ Str::title($item->status) }}</td>
                                         
                                     </tr>
                                 @endforeach

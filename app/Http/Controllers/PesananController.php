@@ -6,19 +6,78 @@ use App\Models\Pesanan;
 use App\Models\BarangDetail;
 use App\Models\Gambar;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Models\WaitingList;
+use Telegram\Bot\Laravel\Facades\Telegram;
+use Illuminate\Support\Carbon;
+
+
 class PesananController extends Controller
 {
 
     public function index()
     {
-        $data = Pesanan::orderBy('id', 'desc')->where('status', 1)->get();
+        $data = Pesanan::orderBy('id', 'desc')->get();
+        return view('pesanan.index', compact('data'));
+    }
 
-        dd($data);
-        return view('barang.index', compact('data'));
+    public function konfirmasi(Request $req)
+    {
+        $data_index = [
+            'id' => $req->_i,
+            'status' => $req->_status,
+        ];
+        $data = Pesanan::find($data_index['id']);
+        if (!$data) return redirect()->back()->with(['t' =>  'error', 'm' => 'Data tidak valid']);;
+        $data->update($data_index);
+
+
+        // if($data_index['status'] == '') // 
+        if ($data_index['status'] == 'terbayar terkonfirmasi') return redirect()->back()->with(['t' =>  'success', 'm' => 'Pesanan sukses di konfirmasi']);
+
+        if ($data_index['status'] == 'dikembalikan') {
+            $barang_detail = $data->barangDetail;
+            // dd($barang_id);
+            $now = Carbon::now();
+            $no = Carbon::now();
+            $add = $no->addHour(1);
+
+            $data->update($data_index);
+
+            $item = $data->barangDetail->update([
+                'kembali' => $now->subMinutes(5),
+            ]);
+            $waiting = WaitingList::where('barang_id', $barang_detail->barang_id)
+            ->whereNull('notif_date')
+            ->whereNull('kadaluarsa')
+            ->orderBy('created_at', 'ASC')->first();
+
+            // dd($waiting);
+            if ($waiting) {
+                if ($waiting->notif_date == null) {
+                    Telegram::sendMessage([
+                        'chat_id' => $waiting->user->telegram_id,
+                        'parse_mode' => 'HTML',
+                        'text' => ' Halo ' . $waiting->user->name . ' Barang ' . $barang_detail->barang->nama . ' Sudah tersedia. Jika kamu serius untuk melanjutkan pemesanan kamu bisa klik /JADIPESAN_' . $waiting->id . ' jika tak kunjung ada respon selama 1 jam setelah chat ini dikirim maka datamu di waiting list akan terhapus dan akan di lempar ke pelanggang yang lain'
+                    ]);
+
+                    $waiting->update([
+                        'notif_date' => $now,
+                        'kadaluarsa' => $add
+                    ]);
+
+                    $barang_detail->update([
+                        'waiting_id' => $waiting->id
+                    ]);
+                }
+            }
+        }
+
+        return redirect()->back()->with(['t' =>  'success', 'm' => 'Pesanan sukses di konfirmasi']);
     }
 
     public function create()
-    {    
+    {
         return view('barang.create');
     }
 
@@ -46,38 +105,38 @@ class PesananController extends Controller
             ->update([
                 'kode_barang' => $kd,
             ]);
-            $image = array();
-            if ($file = $request->file('file')) {
-                $jum = count($request->file('file'));
-                foreach ($file as $f) {
-                    $image_name = md5(rand(1000, 10000));
-                    $ext = strtolower($f->getClientOriginalExtension());
-                    $image_full_name = $image_name . '.' . $ext;
-                    $uploade_path = 'uploads/images/';
-                    $image_url = $uploade_path . $image_full_name;
-                    $f->move($uploade_path, $image_full_name);
-                    $image[] = $image_url;
-                }
-                for ($i = 0; $i < $jum; $i++) {
-                    Gambar::create([
-                            'id_barang' => $data->id,
-                            'file' => $image[$i]
-                        ]);
-                }
+        $image = array();
+        if ($file = $request->file('file')) {
+            $jum = count($request->file('file'));
+            foreach ($file as $f) {
+                $image_name = md5(rand(1000, 10000));
+                $ext = strtolower($f->getClientOriginalExtension());
+                $image_full_name = $image_name . '.' . $ext;
+                $uploade_path = 'uploads/images/';
+                $image_url = $uploade_path . $image_full_name;
+                $f->move($uploade_path, $image_full_name);
+                $image[] = $image_url;
             }
+            for ($i = 0; $i < $jum; $i++) {
+                Gambar::create([
+                    'id_barang' => $data->id,
+                    'file' => $image[$i]
+                ]);
+            }
+        }
 
         for ($i = 0; $i < $data->stok; $i++) {
             $barangDetail = new BarangDetail();
             $barangDetail->barang_id = $data->id;
-           
+
 
             // Setel atribut-atribut lainnya untuk BarangDetail jika ada
-    
+
             $barangDetail->save();
         }
-        
+
         return redirect()->route('barang.index')
-        ->with(['t' =>  'success', 'm'=> 'Data berhasil ditambah']);
+            ->with(['t' =>  'success', 'm' => 'Data berhasil ditambah']);
     }
 
     public function show(Barang $barang)
@@ -91,21 +150,21 @@ class PesananController extends Controller
         $data = [
             'barang' => Barang::findOrfail($id)
 
-        ];     
+        ];
         return view('barang.edit', compact('data'));
     }
 
+
+
     public function update(Request $request, $id)
     {
-
-
         $data = Barang::find($id);
         $updt = $data->update([
-                'nama' => $request->get('nama'),
-                'harga_sewa' => $request->get('harga_sewa'),
-                'deskripsi' => $request->get('deskripsi'),
-                'stok' => $request->get('stok'),
-            ]);
+            'nama' => $request->get('nama'),
+            'harga_sewa' => $request->get('harga_sewa'),
+            'deskripsi' => $request->get('deskripsi'),
+            'stok' => $request->get('stok'),
+        ]);
 
         $nama = $request->get('nama');
         $id = $id;
@@ -114,39 +173,39 @@ class PesananController extends Controller
         $sub_kalimat = substr($ven, 0, 2);
         $kode = $in . $sub_kalimat;
         $kd = $kode . sprintf("%03s", $id);
-        Barang::where('id',$id)
+        Barang::where('id', $id)
             ->update([
                 'kode_barang' => $kd,
             ]);
 
-            $image = array();
-            if ($file = $request->file('file')) {
-                $jum = count($request->file('file'));
-                foreach ($file as $f) {
-                    $image_name = md5(rand(1000, 10000));
-                    $ext = strtolower($f->getClientOriginalExtension());
-                    $image_full_name = $image_name . '.' . $ext;
-                    $uploade_path = 'uploads/images/';
-                    $image_url = $uploade_path . $image_full_name;
-                    $f->move($uploade_path, $image_full_name);
-                    $image[] = $image_url;
-                }
-
-                for ($i = 0; $i < $jum; $i++) {
-                    Gambar::create([
-                            'id_barang' => $data->id,
-                            'file' => $image[$i]
-                        ]);
-                }
+        $image = array();
+        if ($file = $request->file('file')) {
+            $jum = count($request->file('file'));
+            foreach ($file as $f) {
+                $image_name = md5(rand(1000, 10000));
+                $ext = strtolower($f->getClientOriginalExtension());
+                $image_full_name = $image_name . '.' . $ext;
+                $uploade_path = 'uploads/images/';
+                $image_url = $uploade_path . $image_full_name;
+                $f->move($uploade_path, $image_full_name);
+                $image[] = $image_url;
             }
+
+            for ($i = 0; $i < $jum; $i++) {
+                Gambar::create([
+                    'id_barang' => $data->id,
+                    'file' => $image[$i]
+                ]);
+            }
+        }
         return redirect()->route('barang.index')
-        ->with(['t' =>  'success', 'm'=> 'Data berhasil diupdate']);
+            ->with(['t' =>  'success', 'm' => 'Data berhasil diupdate']);
     }
 
     public function destroy(Request $request)
     {
         $data = Barang::findorFail($request->id)->update(['status' => 0]);
         return redirect()->route('barang.index')
-        ->with(['t' =>  'success', 'm'=> 'Data berhasil dihapus']);
+            ->with(['t' =>  'success', 'm' => 'Data berhasil dihapus']);
     }
 }

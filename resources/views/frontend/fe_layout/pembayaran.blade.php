@@ -76,31 +76,26 @@
                     </div>
                 </div>
                 <div class="col-lg-4 right-contents">
-
                     <h3>Pembayaran </h3>
                     <br>
                     <div class="alert alert-primary" role="alert">
-                        @if ($data->status && $data->tipe_bayar == 'cod')
-                            Terimakasih pesanan sudah terbayar dengan metode COD. Hubungi Customer untuk info lebih lanjut
+                        @if ($data->status == 'terbayar belum terkonfirmasi' && $data->tipe_bayar == 'cod')
+                            Terimakasih pesanan sudah terbayar dengan metode COD. Perlu di konfirmasi oleh cs
                         @endif
 
-                        @if ($data->tipe_bayar == 'tf' && $data->status == 0)
-                        @endif
-                        @if ($data->tipe_bayar == 'tf' && $data->status == 1)
-                            Terimakasih telah melakukan pembayaran secara transfer. Pesanan sudah terkonfirmasi
+                        @if ($data->status == 'terbayar terkonfirmasi')
+                            Terimakasih telah melakukan pembayaran. Pesanan sudah terkonfirmasi
                         @endif
 
-                        @if ($data->status == 0 && $data->tipe_bayar == 'null')
-                        Batas akhir pembayaran adalah 12 jam setelah pesanan ini dibuat( {{ tgl_full($akhir) }})
+                        @if ($data->status == 'belum bayar' && !$data->tipe_bayar)
+                            Batas akhir pembayaran adalah 12 jam setelah pesanan ini dibuat( {{ tgl_full($akhir) }})
                         @endif
                     </div>
                     <form action="{{ route('home.pembayaran.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-row mb-3">
                             <input type="hidden" name="_id" value="{{ $data->id }}">
-
                             <input type="hidden" class="form-control" value="{{ tgl($data->mulai) }}">
-
                             <input type="hidden" class="form-control" value="{{ tgl($data->kembali) }}">
 
                             <div class="form-group col-md-12">
@@ -122,7 +117,7 @@
                                 <input type="text" class="form-control" disabled value="{{ $total_bayar }}">
                             </div>
 
-                            @if ($data->status == 0)
+                            @if ($data->status == 'belum bayar')
                                 <div class="form-group col-md-12">
                                     <label for="">Pilih metode pembayaran</label>
                                     <div class="form-check">
@@ -145,9 +140,8 @@
                                     <label for="">Upload Bukti Bayar</label>
                                     <input type="file" name="file" class="form-control">
                                 </div>
-
+                            @endif
                         </div>
-                        @endif
                         @if (Auth::check() && $data->tipe_bayar == null)
                             <button type="submit" class="primary-btn text-uppercase">Bayar
                             </button>
@@ -161,17 +155,18 @@
                 </div>
             </div>
         </div>
-        <script>
-            const codRadio = document.getElementById('cod');
-            const tfRadio = document.getElementById('tf');
-            const uploadSection = document.getElementById('uploadSection');
+    </section>
+    <script>
+        const codRadio = document.getElementById('cod');
+        const tfRadio = document.getElementById('tf');
+        const uploadSection = document.getElementById('uploadSection');
 
-            codRadio.addEventListener('change', function() {
-                uploadSection.style.display = 'none';
-            });
+        codRadio.addEventListener('change', function() {
+            uploadSection.style.display = 'none';
+        });
 
-            tfRadio.addEventListener('change', function() {
-                uploadSection.style.display = 'block';
-            });
-        </script>
-    @endsection
+        tfRadio.addEventListener('change', function() {
+            uploadSection.style.display = 'block';
+        });
+    </script>
+@endsection

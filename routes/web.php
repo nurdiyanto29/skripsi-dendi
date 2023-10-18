@@ -27,11 +27,22 @@ Route::get('/nota', function () {
 });
 Route::get('/set', function () {
     $env = config('app.telegram.bot_token');
-    $ngrok = 'https://fc40-114-142-168-57.ngrok-free.app';
+    $ngrok = config('base.url');
     $uri = '/telegram/webhook/';
     $url = $ngrok.$uri;
 
     $x = "https://api.telegram.org/bot".$env."/setWebhook?url=".$url.$env;
+
+    return '<script>window.open("' . $x . '", "_blank");</script>';
+   
+});
+Route::get('/delete', function () {
+    $env = config('app.telegram.bot_token');
+    $ngrok = config('base.url');
+    $uri = '/telegram/webhook/';
+    $url = $ngrok.$uri;
+
+    $x = "https://api.telegram.org/bot".$env.'/deleteWebhook';
 
     return '<script>window.open("' . $x . '", "_blank");</script>';
    
@@ -63,6 +74,7 @@ Route::group(['middleware' => ['cekrole:Pemilik']], function(){
     
     
     Route::get('/pesanan', [PesananController::class, 'index'])->name('pesanan.index');
+    Route::get('/pesanan/konfirmasi', [PesananController::class, 'konfirmasi'])->name('pesanan.konfirmasi');
     Route::get('/pesananan/create', [PesananController::class, 'create'])->name('pesananan.create');
     Route::get('/pesananan/edit/{id}', [PesananController::class, 'edit'])->name('pesananan.edit');
     Route::get('/pesananan/detail/{pesananan}', [PesananController::class, 'show'])->name('pesananan.detail');

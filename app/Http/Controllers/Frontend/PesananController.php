@@ -21,7 +21,7 @@ class PesananController extends Controller
     function index()
     {
 
-        $data = Pesanan::where(['user_id' => Auth::user()->id])  ->whereNotNull('tipe_bayar')->get();
+        $data = Pesanan::where(['user_id' => Auth::user()->id])->get();
         $opt = [
             'head' => 'Data Pesanan'
         ];
@@ -86,9 +86,15 @@ class PesananController extends Controller
             $data_order = Pesanan::create([
                 'barang_detail_id' => $bd->id,
                 'user_id' => Auth::user()->id,
-                'tipe_bayar' => 'tf',
+                'tipe_bayar' => NULL,
                 'bukti_bayar' => NULL,
-                'status' => 0,
+                'status' => 'belum bayar',
+
+                //  belum bayar
+                //     terbayar belum terkonfirmasi=> pertama ketika sudah melakukan pembayaran baik cod atau tf
+                //     terbayar terkonfirmasi 
+
+                
                 'mulai' => $tanggal_jam,
                 'kembali' => $kembali,
                 'total' => $bd->barang->harga_sewa * $req->hari,

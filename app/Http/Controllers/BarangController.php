@@ -81,7 +81,6 @@ class BarangController extends Controller
     public function show(Barang $barang)
     {
         $data = Barang::find($barang->id);
-        // dd($data);
         return view('barang.detail', compact('data'));
     }
     public function edit(Request $request, $id)
