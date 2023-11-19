@@ -40,7 +40,7 @@
                     @endphp
                     <div class="{{ $class }} posts-list">
                         <div class="main-img" style="text-align: center">
-                            <img class="img-fluid" src=" {{image($data->foto, true)}}" alt="foto"
+                            <img class="img-fluid custom-image" src=" {{image($data->foto, true)}}" alt="foto"
                                 width="70%">
                                
                         </div>

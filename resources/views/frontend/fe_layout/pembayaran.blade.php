@@ -80,7 +80,7 @@
                     <br>
                     <div class="alert alert-primary" role="alert">
                         @if ($data->status == 'terbayar belum terkonfirmasi' && $data->tipe_bayar == 'cod')
-                            Terimakasih pesanan sudah terbayar dengan metode COD. Perlu di konfirmasi oleh cs
+                            Terimakasih telah melakukan pemesanan. silahkan datang ke toko dan akan di konfirmasi oleh cs
                         @endif
 
                         @if ($data->status == 'terbayar terkonfirmasi')

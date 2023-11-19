@@ -50,9 +50,9 @@
                                                 $gbr = App\Models\Gambar::where('id_barang', $item->id)->first();
                                             @endphp
                                             @if ($gbr)
-                                                <img class="img-fluid" src="{{ URL::to($gbr->file) }}" alt="Foto">
+                                                <img class="img-fluid custom-image" src="{{ URL::to($gbr->file) }}" alt="Foto">
                                             @else
-                                                <img class="img-fluid" src="{{ asset('dist/img/default.jpg') }}"
+                                                <img class="img-fluid custom-image" src="{{ asset('dist/img/default.jpg') }}"
                                                     alt="Foto">
                                             @endif
                                         </a>

@@ -27,6 +27,14 @@ class PesananController extends Controller
         ];
         return $this->view('frontend.pesanan.index', compact('data', 'opt'));
     }
+    function waiting_index()
+    {
+        $data = WaitingList::where(['user_id' => Auth::user()->id])->orderBy('created_at', 'desc')->get();
+        $opt = [
+            'head' => 'Data Waiting List'
+        ];
+        return $this->view('frontend.pesanan.waiting', compact('data', 'opt'));
+    }
 
     function store(Request $req)
     {
@@ -135,22 +143,11 @@ class PesananController extends Controller
             $data_order = WaitingList::create([
                 'barang_id' => $barang->id,
                 'user_id' => Auth::user()->id,
-                // 'notif_date' => Carbon::now(),
-                // 'kadaluarsa' => $add,
                 'status_sewa' => 0,
                 
             ]);
 
                 $responseText = "Terimakasih Data Waiting untuk barang $barang->nama dengan kode barang $barang->kode_barang sudah terdaftar" . "\n";
-                // $responseText .= "\n";
-                // $responseText .= "Nama Barang: $barang->nama\n";
-                // $responseText .= "Kode Barang: $barang->kode_barang\n";
-                // $responseText .= "Mulai sewa: $tanggal_jam \n";
-                // $responseText .= "Kembali sewa: $kembali \n";
-                // $link = 'https://example.com';
-
-                // $responseText .= "Anda dapat segera melakukan pembayaran melalui link berikut ini " . $link . "\n";
-                // $responseText .= "\n";
             } else {
                
             }
@@ -159,8 +156,8 @@ class PesananController extends Controller
 
         // $url = url('dashboard/pembayaran/create?brg_dtl=' . $data_order->id);
 
-        // return redirect()->to($url);
-        dd('ok');
+        return redirect()->to('/dashboard/waiting')->with('success', 'Data waiting berhasil di tambahkan');;
+        // dd('ok');
     }
 
 

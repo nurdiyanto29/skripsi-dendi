@@ -2,5 +2,6 @@
 
 return [
 
-    'url' => 'https://61cb-103-208-205-155.ngrok-free.app',
+    'url' => 'https://15cd-36-72-212-24.ngrok-free.app',
+    
 ];

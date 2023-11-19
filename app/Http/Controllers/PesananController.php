@@ -52,13 +52,12 @@ class PesananController extends Controller
             ->whereNull('kadaluarsa')
             ->orderBy('created_at', 'ASC')->first();
 
-            // dd($waiting);
             if ($waiting) {
                 if ($waiting->notif_date == null) {
                     Telegram::sendMessage([
                         'chat_id' => $waiting->user->telegram_id,
                         'parse_mode' => 'HTML',
-                        'text' => ' Halo ' . $waiting->user->name . ' Barang ' . $barang_detail->barang->nama . ' Sudah tersedia. Jika kamu serius untuk melanjutkan pemesanan kamu bisa klik /JADIPESAN_' . $waiting->id . ' jika tak kunjung ada respon selama 1 jam setelah chat ini dikirim maka datamu di waiting list akan terhapus dan akan di lempar ke pelanggang yang lain'
+                        'text' => ' Halo ' . $waiting->user->name . ' Barang ' . $barang_detail->barang->nama . ' Sudah tersedia. Jika kamu serius untuk melanjutkan pemesanan kamu bisa klik /JADIPESAN_' . $barang_detail->id . ' jika tak kunjung ada respon selama 1 jam setelah chat ini dikirim maka datamu di waiting list akan terhapus dan akan di lempar ke pelanggang yang lain'
                     ]);
 
                     $waiting->update([
@@ -70,6 +69,16 @@ class PesananController extends Controller
                         'waiting_id' => $waiting->id
                     ]);
                 }
+            }
+
+            if(!$waiting){
+                $barang_detail->update([
+                    'penyewa' => NULL,
+                    'mulai' => NULL,
+                    'kembali' => NULL,
+                    'status_sewa' => 0,
+                    'waiting_id' => NULL,
+                ]);
             }
         }
 

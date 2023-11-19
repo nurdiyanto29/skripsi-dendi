@@ -10,6 +10,7 @@ class UserCOntroller extends Controller
     public function index()
     {
         $data = User::orderBy('id','desc')->where('role','Penyewa')->get();
+        // dd($data);
         return view('user.index', compact('data'));
     }
     public function store(Request $request)

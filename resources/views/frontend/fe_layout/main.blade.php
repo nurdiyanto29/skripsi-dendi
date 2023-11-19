@@ -23,6 +23,14 @@
         #main-content ul.pagination{
             list-style: none
         }
+
+        .custom-image {
+            /* border-radius: 50%; */
+            object-fit: cover;
+            object-position: center;
+            width: 200px;
+            height: 200px;
+        }
     </style>
 </head>
 

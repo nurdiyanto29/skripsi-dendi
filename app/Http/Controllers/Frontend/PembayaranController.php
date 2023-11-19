@@ -16,7 +16,10 @@ class PembayaranController extends Controller
     function create(Request $req)
     {
         $b = $req->brg_dtl;
-        $data = Pesanan::find($b);
+        $data = Pesanan::findOrFail($b);
+        if(Auth::check()){
+            if((Auth::user()->id != $data->user_id)) abort(403, 'Anda tidak memiliki akses untuk halaman ini' );
+        }
     
         $opt = [
             'head' => 'Pembayaran'

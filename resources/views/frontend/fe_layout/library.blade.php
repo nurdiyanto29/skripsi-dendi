@@ -53,13 +53,9 @@
 <script src="{{ asset('frontend/js/owl.carousel.min.js') }}"></script>
 <script src="{{ asset('plugins/moment/moment.min.js') }}"></script>
 <script src="{{ asset('plugins/moment/locales.min.js') }}"></script>
-<script src="{{ asset('plugins/jquery-loading/jquery.loading.min.js') }}"></script>
 <script src="{{ asset('plugins/toastr/toastr.min.js') }}"></script>
 
 
-<link rel="stylesheet" href="{{ asset('plugins/jquery-confirm/jquery-confirm.min.css') }}">
-
-<script src="{{ asset('plugins/jquery-confirm/jquery-confirm.min.js') }}"></script>
 <script src="{{ asset('frontend/js/main.js') }}"></script>
 <script>
     moment.locale('id');
@@ -77,12 +73,19 @@ window.addEventListener('pageshow', function(event) {
 });
 
 
-$(function () {
+
+// $(function () {
    
-    $('.my-loading').on('click', function () {
-        $('body').loading()
-        // history.pushState("myloading", document.title, window.location.pathname);
-    });
-});   
+//     $('.my-loading').on('click', function () {
+//         $('body').loading()
+//         // history.pushState("myloading", document.title, window.location.pathname);
+//     });
+// });   
 </script>
+@if(session('success'))
+    <script>
+        // You can use your preferred toaster library here, for example, toastr
+        toastr.success('{{ session('success') }}');
+    </script>
+@endif
 @stack('js')

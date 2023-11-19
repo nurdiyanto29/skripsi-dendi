@@ -43,7 +43,7 @@ class Controller extends BaseController
 
                 'Pesanan Anda' => [
                     'Riwayat Pesan' => '/dashboard/pesanan',
-                    'Waiting' => '/',
+                    'Waiting' => '/dashboard/waiting',
                 ],
                 'Logout' =>  '/logout',
             ];

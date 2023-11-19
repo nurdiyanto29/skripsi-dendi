@@ -28,6 +28,11 @@ Route::group(['prefix' => 'dashboard', 'as' => 'home.'], function () {
                         Route::post('/waiting/store', [$class, 'waiting_store'])->name('waiting.store');
                 });
 
+                Route::group(['prefix' => 'waiting', 'as' => 'waiting.'], function () {
+                        $class = PesananController::class;
+                        Route::get('/', [$class, 'waiting_index'])->name('waiting_index');
+                });
+
         });
         Route::group(['prefix' => 'pembayaran', 'as' => 'pembayaran.'], function () {
                 $class = PembayaranController::class;

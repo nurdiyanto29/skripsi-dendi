@@ -93,10 +93,9 @@ class AuthController extends Controller
         $user->alamat = $req->alamat;
         $user->save();
 
-        return redirect()->route('login')->with('success', 'register Berhasill');
 
 
-
+        return redirect()->route('login')->with('success', 'register Berhasil.');
     }
     public function profile()
     {

@@ -46,6 +46,9 @@
                                             <th>Email </th>
                                             <th>Alamat </th>
                                             <th>Phone </th>
+                                            <th>Telegram Id </th>
+                                            <th>Bergabung Sejak </th>
+                                          
                                             <th style="width: 20px"><i class="fas fa-cogs"></i></th>
                                         </tr>
                                     </thead>
@@ -60,6 +63,8 @@
                                                 <td>{{ $dt->email }}</td>
                                                 <td>{{ $dt->alamat }}</td>
                                                 <td>{{ $dt->tlp }}</td>
+                                                <td>{{ $dt->telegram_id }}</td>
+                                                <td>{{ tgl($dt->created_at) }}</td>
                                                 <td style="text-align: center"> <a href="#"
                                                         class="nav-link has-dropdown" data-toggle="dropdown"><i
                                                             class="fa fa-ellipsis-h " style="color: #777778"></i></a>
