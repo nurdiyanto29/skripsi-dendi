@@ -50,6 +50,8 @@ class PesananController extends Controller
                 'barang_id' => $barang->id,
                 'status_sewa' => 0,
             ])->orderBy('id', 'ASC')->first();
+
+            // dd($bd);
             if ($bd) {
                 $tanggal_jam = $req->tanggal . ' ' . $req->jam;
 
@@ -65,6 +67,8 @@ class PesananController extends Controller
 
                 $kembali = $new_tanggal . ' ' . $new_jam;
 
+                // dd($kembali, $tanggal_jam);
+
 
                 $bd->update([
                     'mulai' => $tanggal_jam,
@@ -72,8 +76,6 @@ class PesananController extends Controller
                     'kembali' => $kembali,
                     'penyewa' => Auth::user()->id,
                 ]);
-
-               
             } else {
                 // $br = BarangDetail::where([
                 //     'barang_id' => $barang->id,
@@ -97,17 +99,12 @@ class PesananController extends Controller
                 'tipe_bayar' => NULL,
                 'bukti_bayar' => NULL,
                 'status' => 'belum bayar',
-
-                //  belum bayar
-                //     terbayar belum terkonfirmasi=> pertama ketika sudah melakukan pembayaran baik cod atau tf
-                //     terbayar terkonfirmasi 
-
                 
                 'mulai' => $tanggal_jam,
                 'kembali' => $kembali,
                 'total' => $bd->barang->harga_sewa * $req->hari,
 
-                
+
             ]);
 
             $responseText = 'Data Penyewaan berhasil di tambahkan berikut adalah informasi sewa anda' . "\n";
@@ -116,7 +113,7 @@ class PesananController extends Controller
             $responseText .= "Kode Barang: $barang->kode_barang\n";
             $responseText .= "Mulai sewa: $tanggal_jam \n";
             $responseText .= "Kembali sewa: $kembali \n";
-            $link = config('base.url').'/dashboard/pembayaran/create?brg_dtl='.$data_order->id;
+            $link = config('base.url') . '/dashboard/pembayaran/create?brg_dtl=' . $data_order->id;
 
             $responseText .= "Anda dapat segera melakukan pembayaran melalui link berikut ini " . $link . "\n";
             $responseText .= "\n";
@@ -144,13 +141,12 @@ class PesananController extends Controller
                 'barang_id' => $barang->id,
                 'user_id' => Auth::user()->id,
                 'status_sewa' => 0,
-                
+
             ]);
 
-                $responseText = "Terimakasih Data Waiting untuk barang $barang->nama dengan kode barang $barang->kode_barang sudah terdaftar" . "\n";
-            } else {
-               
-            }
+            $responseText = "Terimakasih Data Waiting untuk barang $barang->nama dengan kode barang $barang->kode_barang sudah terdaftar" . "\n";
+        } else {
+        }
 
         $this->sendTelegramMessage(Auth::user()->telegram_id, $responseText);
 

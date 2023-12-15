@@ -16,21 +16,20 @@ use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
-    public function index(){
-    
-        $brg = Barang::orderBy('id','DESC')->get();
-        $barang = Barang::orderBy('id','DESC')->count();
+    public function index()
+    {
+
+        $brg = Barang::orderBy('id', 'DESC')->get();
+        $barang = Barang::orderBy('id', 'DESC')->count();
         $user = User::where('role', 'Penyewa')->count();
         $waiting = WaitingList::count();
         $br = Barang::join('barang_detail as b', 'b.barang_id', 'barang.id')
-        ->where('b.status_sewa', 0)->count();
+            ->where('b.status_sewa', 0)->count();
 
-        // dd(1);
-        if(Auth::check()){
-            if(Auth::user()->role == 'Pemilik') return view('dasboard', compact('barang','brg','br','waiting', 'user'));
+        if (Auth::check()) {
+            if (Auth::user()->role == 'Pemilik') return view('dasboard', compact('barang', 'brg', 'br', 'waiting', 'user'));
         }
 
         return redirect()->route('home.index');
     }
-
 }

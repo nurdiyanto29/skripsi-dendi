@@ -30,18 +30,11 @@ class PembayaranController extends Controller
     function store(Request $req)
     {
         $e = Pesanan::find($req->_id);
-        $datetime1 = new DateTime($e->barangDetail->mulai);
-        $datetime2 = new DateTime($e->barangDetail->kembali);
 
-        $interval = $datetime1->diff($datetime2);
-        $days = $interval->days;
-        $now = Carbon::now();
-
-
+        // dd($e);
 
         if ($req->hasFile('file')) {
             $imageName = time().'.'.$req->file->extension();
-    
             $req->file->move(public_path('uploads/bukti_bayar'), $imageName);
         } else {
             // Jika gambar tidak diunggah, atur $imageName menjadi null atau nilai default yang sesuai
@@ -52,9 +45,11 @@ class PembayaranController extends Controller
             'bukti_bayar' => $imageName,
             'status' => 'terbayar belum terkonfirmasi',
             'tipe_bayar' => $req->tipe_bayar,
-            'mulai' => $now,
-            'kembali' => $now->addDays($days),
+            'mulai' => $e->mulai,
+            'kembali' => $e->kembali,
         ];
+
+        // dd($data);
         $e->update($data);
 
         return redirect()->back()->with('success', 'Barang Berhasil terbayar');

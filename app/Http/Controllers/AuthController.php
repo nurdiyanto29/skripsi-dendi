@@ -69,7 +69,8 @@ class AuthController extends Controller
 
     public function register()
     {
-        return view('register');
+        // return view('register');
+        return view('blank');
     }
     public function register_store(Request $req)
     {

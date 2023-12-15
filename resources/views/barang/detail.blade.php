@@ -70,8 +70,13 @@
                             <h3 class="my-3">{{ $data->nama }}</h3>
                             <p>{!! $data->deskripsi !!}</p>
                             <hr>
-                            <h4><span style="color: red; font-weight:900"> {{ $data->barangReady() }}</span> Stok Tersedia
+                            <h4><span style="color: red; font-weight:900"> {{ $data->barangDetail()->count() }}</span> Total stok
                             </h4>
+                            <h4><span style="color: red; font-weight:900"> {{ $data->barangReady() }}</span> Stok Ready
+                            </h4>
+                            <h4><span style="color: red; font-weight:900"> {{ $data->barangDisewa() }}</span> Stok Disewa
+                            </h4>
+                         
                             <div class="bg-gray py-2 px-3 mt-4">
                                 <h2 class="mb-0">
                                     @currency($data->harga_sewa)
@@ -85,7 +90,6 @@
                                         <th>Nama Barang</th>
                                         <th>Status</th>
                                         <th>Jadwal Mulai - Kembali</th>
-                                        <th>Penyewa</th>
                                         <th><i class="fas fa-cogs"></i></th>
                                     </tr>
                                 </thead>
@@ -101,18 +105,17 @@
 
                                             <td>{{ $dt->status_sewa ? 'Disewa' : 'Ready' }}</td>
                                             <td>{{ tgl_full($dt->mulai) }} - {{ tgl_full($dt->kembali) }}</td>
-                                            <td>{{ $dt->penyewa()->first()->name ?? '' }}</td>
+                                            {{-- <td>{{ $dt->penyewa()->first()->name ?? '' }}</td> --}}
                                             <td style="text-align: center"> <a href="#" class="nav-link has-dropdown"
                                                     data-toggle="dropdown"><i class="fa fa-ellipsis-h "
                                                         style="color: #777778"></i></a>
                                                 <ul class="dropdown-menu">
                                                     <li><a class="nav-link" id="edit-data"
                                                             href="{{ route('barang.edit', $dt->id) }}">Edit</a></li>
-                                                    <li> <a href="#" id="delete-data" data-id={{ $dt->id }}
-                                                            data-nama={{ $dt->nama }} class="nav-link"
+                                                    <li> <a href="#" class="nav-link" id="delete-data" data-id={{ $dt->id }}
+                                                            data-nama={{ $dt->nama }} 
                                                             data-toggle="modal" data-target="#deleteModal">Delete</a>
                                                     </li>
-                                                    </a></li>
                                                 </ul>
                                             </td>
                                         </tr>

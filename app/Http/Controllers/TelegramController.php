@@ -93,78 +93,37 @@ class TelegramController extends Controller
 
             $now = Carbon::now();
 
-            // Lakukan logika sesuai dengan pesan yang diterima
-            // Misalnya, jika pesan adalah '/start', balas dengan pesan selamat datang
             if ($text === '/start') {
-                $responseText = 'Halo! Bro/Sist '  . $username . '. Selamat datang di Gading Adventure.';
-            } elseif ($text === '/copyform') {
-                $responseText = 'Kode Barang: ' . "\n";
-                $responseText .= 'Tgl/Jam Sewa: ' . "\n";
-                $responseText .= 'Jumlah Hari Sewa' . "\n";
-            } elseif (strpos($text, '/wt_') !== false) {
-                // } elseif (strpos($text, 'tg://_') !== false) {
+                $user = User::where('telegram_id', $chatId)->first();
 
-                $tx = explode("_", $text);
-                $c = count($tx);
-                $dt = User::where('telegram_id', $chatId)->first();
-                if ($dt == null) {
-                    $responseText = 'Maaf anda belum terdaftar di sistem kami. ketikan atau klik /registrasi untuk melakukan pendaftaran di sistem kami. Registrasi adalah langkah pertama untuk bisa melakukan pemesanan melalui telegram bot Gading Adventure' . "\n";
-                } else {
-                    if ($c == 2) {
-                        $d = base64_decode($tx[1] . '==');
-                        $ex  = explode("_", $d);
-                        if (strpos($text, $tx[0]) !== false && strpos($text, $tx[1]) !== false) {
-                            try {
-
-                                $barang = Barang::where('kode_barang', $ex[0])->first();
-                                $t = Carbon::parse($ex[1]);
-                                $t->addDays($ex[2]);
-
-                                $k = $t->format('Y-m-d H:i:s');
-
-
-                                if ($barang != null) {
-                                    $data = new WaitingList();
-                                    $data->user_id = $dt->id;
-                                    $data->barang_id = $barang->id;
-                                    $data->mulai = $ex[1];
-                                    $data->kembali = $k;
-                                    $data->barang_id = $barang->id;
-                                    $data->save();
-
-
-                                    $responseText = 'Terimakasih berikut adalah rincian barang anda :' . "\n";
-                                    $responseText .= 'Kode: ' . $barang->kode_barang . "\n";
-                                    $responseText .= 'Nama Barang: ' . $barang->nama . "\n";
-                                    $responseText .= 'Mulai Sewa: ' . tgl($data->mulai) . "\n";
-                                    $responseText .= 'Kembali: ' . tgl($data->kembali) . "\n";
-                                    $responseText .= "Terimakasih ya. Kalian harus sabar. Nanti admin kabari lagi kalo barangnya ready di telegram bot ini ya." . "\n";
-                                } else {
-                                    $responseText = "Barang dengan kode $tx[1] tidak ditemukan. Silakan periksa kembali kode barang yang Anda masukkan.";
-                                }
-                            } catch (Exception $e) {
-                                $responseText = 'Tanggal anda salah ya' . "\n";
-                            }
-                        }
-                    } else {
-                        $responseText = 'Format yang anda masukkan salah. Pastikan sudah sesuai dengan format yang telah di tentukan';
-                    }
+                if ($user) {
+                    $responseText = 'Halo! Bro/Sist '  . $username . '. Selamat datang di Gading Adventure. Kondisi akunmu untuk sistem telegram kami baik baik saja. Anda dapat klik /profil untuk melihat lebih detail';
+                }
+                if (!$user) {
+                    $responseText = 'Halo! Bro/Sist '  . $username . ' Saat ini akunmu belum terdaftar di sistem kami. klik /registrasi untuk melakukan pendaftaran dan ikuti langkah selanjutnya. .';
                 }
             } elseif ($text === '/registrasi') {
 
                 $dt = User::where('telegram_id', $chatId)->first();
                 if ($dt == null) {
-                    $responseText = 'Masukkan Nama dan Email Anda:' . "\n";
-                    $responseText .= 'Nama:' . "\n";
-                    $responseText .= 'Email:';
+                    $respon1 = 'Copy format di bawah ini dan masukkan datanya' . "\n";
+
+                    $responseText = 'Nama:' . "\n";
+                    $responseText .= 'Email:' . "\n";
+                    $responseText .= 'Alamat:' . "\n";
+                    $responseText .= 'Hp:' . "\n";
+                    $responseText .= 'Password:' . "\n";
                 } else {
                     $responseText = 'Anda sudah terdaftar di sistem kami, tidak perlu lagi melakukan registrasi. Anda dapat melihat informasi profile anda dengan klik atau mengetikkan /profil' . "\n";
                 }
 
                 // Tambahkan langkah berikutnya untuk menangkap input pengguna setelah perintah /registrasi
-            } elseif (strpos($text, 'Nama:') !== false || strpos($text, 'Email:') !== false) {
+            } elseif (strpos($text, 'Nama:') !== false && strpos($text, 'Email:') !== false  && strpos($text, 'Alamat:') !== false  && strpos($text, 'Hp:') !== false  && strpos($text, 'Password:') !== false) {
                 $nama = null;
                 $email = null;
+                $alamat = null;
+                $hp = null;
+                $password = null;
 
                 // Pemisahan teks menjadi baris-baris
                 $lines = explode("\n", $text);
@@ -175,25 +134,32 @@ class TelegramController extends Controller
                         $nama = trim(str_replace('Nama:', '', $line));
                     } elseif (strpos($line, 'Email:') !== false) {
                         $email = trim(str_replace('Email:', '', $line));
+                    } elseif (strpos($line, 'Alamat:') !== false) {
+                        $alamat = trim(str_replace('Alamat:', '', $line));
+                    } elseif (strpos($line, 'Hp:') !== false) {
+                        $hp = trim(str_replace('Hp:', '', $line));
+                    } elseif (strpos($line, 'Password:') !== false) {
+                        $password = trim(str_replace('Password:', '', $line));
                     }
                 }
 
-                if ($nama && $email) {
+                if ($nama && $email && $alamat && $hp && $password) {
 
+                    $link = config('base.url').'/login';
                     $dt = User::where('email', $email)->first();
                     if ($dt) {
-                        // Email sudah ada dalam database
-                        $responseText = 'Maaf, email yang Anda masukkan sudah terdaftar.';
+                        $responseText = 'Saat ini emailmu sudah terdaftar di sistem kami silahkan login ' . $link . ' sesuai email dan password yang kamu daftarkan sebelumnya';
                     } else {
-                        // Email belum ada dalam database, data baru dapat disimpan
-                        $user = new User();
-                        $user->name = $nama;
-                        $user->email = $email;
-                        $user->password = bcrypt('123');
-                        $user->telegram_id = $chatId;
-                        $user->save();
+                        User::create([
+                            'name' => $nama,
+                            'email' => $email,
+                            'alamat' => $alamat,
+                            'tlp' => $hp,
+                            'password' => bcrypt($password),
+                            'telegram_id' => $chatId,
+                        ]);
 
-                        $responseText = 'Terima kasih, data Anda telah berhasil disimpan!';
+                        $responseText = 'Saat ini akunmu sudah terdaftar di sistem kami silahkan login ' . $link . ' sesuai email dan password yang kamu daftarkan sebelumnya';
                     }
                 } else {
                     $responseText = "Proses registrasi anda Gagal Pastikan anda menginputkan dengan format yang benar";
@@ -265,7 +231,8 @@ class TelegramController extends Controller
                                     $tgl_a = $tgl . ':00';
                                     $e = $barang->kode_barang . '_' . $tgl_a . '_' . $hari;
 
-                                    $ee = base64_encode($e);
+                                    $link = config('base.url') . '/dashboard/pembayaran/create?brg_dtl=';
+                                    $ee = $link($e);
 
                                     $r = str_replace('=', '', $ee);
 
@@ -320,7 +287,6 @@ class TelegramController extends Controller
                     if ($nama) $responseText .= "|- Daftar Waiting List : " . implode(', ', $nama) . "\n";
                     $responseText .= "\n";
                 }
-                $responseText .= "Masukkan dengan format: /pesan KODE_BARANG untuk melakukan pemesanan";
             } elseif ($text === '/profil') {
                 $dt = User::where('telegram_id', $chatId)->first();
                 if ($dt == null) {
@@ -350,7 +316,7 @@ class TelegramController extends Controller
 
                             if ($barang != null) {
 
-                                // $ = 'Berikut Adalah informasi sementara barang yang kamu pesan. Copy informasi dibawah ini dan masukkan jumlah hari pemesanan';
+                                $respon1 = 'Berikut Adalah informasi sementara barang yang kamu pesan. Copy informasi dibawah ini dan masukkan jumlah hari pemesanan';
 
                                 $responseText = "Kode Barang : " . $barang->kode_barang . "\n";
                                 $responseText .= "Nama Barang : "  . $barang->nama .   "\n";
@@ -413,6 +379,8 @@ class TelegramController extends Controller
                             'respon_user' => Carbon::now(),
                         ]);
 
+                        $respon1 = 'copy format di bawah ini dan lengkapi datanya ya';
+
                         $responseText = "KONFIRMASI WAITING LIST 0000" . $barang_detail->id . "\n";
                         $responseText .= "Kode Barang : " . $barang_detail->barang->kode_barang . "\n";
                         $responseText .= "Nama Barang : "  . $barang_detail->barang->nama .   "\n";
@@ -424,6 +392,27 @@ class TelegramController extends Controller
                 }
 
                 if (!$barang_detail) $responseText = "Barang Tidak tersedia" . "\n";
+            } elseif (strpos($text, '/DAFTAR_WAITING_LIST') !== false) {
+
+                $tx = explode("_", $text);
+                // $responseText = "luput" . $tx[1] . "\n";
+                $dt = User::where('telegram_id', $chatId)->first();
+
+                $barang = Barang::where('kode_barang', trim($tx[3]))->first();
+                $now = Carbon::now();
+                $add = $now->addHour(1);
+                if ($barang) {
+                    $data_order = WaitingList::create([
+                        'barang_id' => $barang->id,
+                        'user_id' => $dt->id,
+                        'status_sewa' => 0,
+                    ]);
+                    $link = config('base.url') . '/dashboard/waiting';
+                    $responseText = "Terimakasih Data Waiting untuk barang $barang->nama dengan kode barang $barang->kode_barang sudah terdaftar" . "\n" . "dapat anda lihat detail waiting anda di tautan berikut " . $link;
+                }
+
+                if (!$barang)
+                    $responseText = "Barang dengan kode " . $tx[3] . " Tidak Tersedia" .  "\n";
             } elseif (strpos($text, 'KONFIRMASI WAITING LIST 0000') !== false && strpos($text, 'Jumlah Hari :') !== false) {
                 $bd_id = null;
                 $hari = null;
@@ -445,7 +434,9 @@ class TelegramController extends Controller
 
                     if ($e) {
 
-                        WaitingList::find($e->waiting_id)->delete();
+                        $w = WaitingList::find($e->waiting_id);
+                        if ($w) $w->delete();
+
                         $e->update([
                             'mulai' => Carbon::now(),
                             'status_sewa' => 1,
@@ -464,7 +455,7 @@ class TelegramController extends Controller
 
                             'mulai' => $e->mulai,
                             'kembali' => $e->kembali,
-                            'total' => $e->barang->harga_sewa * $hari,
+                            'total' => (int)$e->barang->harga_sewa * (int)$hari,
                         ]);
 
                         $responseText = 'Data Penyewaan berhasil di tambahkan berikut adalah informasi sewa anda' . "\n";
@@ -472,9 +463,8 @@ class TelegramController extends Controller
                         $responseText .= "Nama Barang:" . $e->barang->nama . "\n";
                         $responseText .= "Kode Barang:" . $e->barang->kode_barang . "\n";
                         $responseText .= "Mulai sewa: $e->mulai \n";
-                        $responseText .= "Kembali sewa: $e->kembali \n";
+                        $responseText .= "Kembali sewa  : $e->kembali \n";
                         $link = config('base.url') . '/dashboard/pembayaran/create?brg_dtl=' . $data_order->id;
-
                         $responseText .= "Anda dapat segera melakukan pembayaran melalui link berikut ini " . $link . "\n";
                         $responseText .= "\n";
                         // $responseText = 'terimakasih sudah di update';
@@ -489,27 +479,39 @@ class TelegramController extends Controller
                 $hari = null;
 
                 $lines = explode("\n", $text);
-
-
                 foreach ($lines as $line) {
                     if (strpos($line, 'Kode Barang') !== false) {
-                        $kode_barang = trim(str_replace('Kode Barang', '', $line));
+                        $kode_barang = trim(str_replace('Kode Barang :', '', $line));
                     } elseif (strpos($line, 'Jumlah Hari :') !== false) {
-                        $hari = trim(str_replace('Jumlah Hari : ', '', $line));
+                        $hari = trim(str_replace('Jumlah Hari :', '', $line));
                     }
                 }
+
+                // $responseText = 'ksks' .$hari. $kode_barang;
 
                 if ($kode_barang && $hari) {
 
                     $brg = Barang::where('kode_barang', $kode_barang)->first();
-                    if (!$brg) {
-                        $responseText = 'Barang dengan kode ' . $kode_barang . ' Tidak tersedia. Mungkin anda salah menginputkan data' . "\n";
-                    }
+
+                    if (!$brg) $responseText = 'barang tidak tersedia';
 
                     if ($brg) {
-                        $e = BarangDetail::find($kode_barang);
+                        $e = BarangDetail::where([
+                            'barang_id' => $brg->id,
+                            'status_sewa' => 0,
+                        ])->first();
+
+                        if (!$e) {
+                            $br = BarangDetail::where([
+                                'barang_id' => $brg->id,
+                                'status_sewa' => 1,
+                            ])->orderBy('kembali', 'ASC')->first();
+
+                            $link = '/DAFTAR_WAITING_LIST_' . $brg->kode_barang;
+                            $responseText = "Yahh........., barang yang kamu inginkan saat ini sedang sedang full booked. Ada 1 barang yang paling dekat ready di tanggal " . tgl($br->kembali) . ". Gimana? kalau masih minat dengan barang ini kamu bisa klik link berikut agar di daftarkan di data waitinglist oleh admin" . "\n"  . $link . "\n" . "nanti admin kabari kalo barangnya ready";
+                        }
+
                         if ($e) {
-                            WaitingList::find($e->waiting_id)->delete();
                             $e->update([
                                 'mulai' => Carbon::now(),
                                 'status_sewa' => 1,
@@ -528,7 +530,7 @@ class TelegramController extends Controller
 
                                 'mulai' => $e->mulai,
                                 'kembali' => $e->kembali,
-                                'total' => $e->barang->harga_sewa * $hari,
+                                'total' => (int)$e->barang->harga_sewa * (int)$hari,
                             ]);
 
                             $responseText = 'Data Penyewaan berhasil di tambahkan berikut adalah informasi sewa anda' . "\n";
@@ -544,185 +546,22 @@ class TelegramController extends Controller
                             // $responseText = 'terimakasih sudah di update';
 
                         }
-                    } else {
-
-                        $responseText = 'nXXip';
                     }
+                }else{
+                    $responseText = 'Pesanan gagal di tambahkan .Pastikan format yang anda masukkan sudah sesuai';
                 }
             } else {
                 // Balas dengan pesan default jika perintah tidak dikenali
                 $responseText = 'Maaf, saya tidak mengenali perintah tersebut.';
             }
-
-
-            $this->sendTelegramMessage($chatId, $responseText, $keyboard);
+            if (isset($respon1)) $this->sendMsg($chatId, $respon1, $keyboard);
+            if (isset($responseText)) $this->sendTelegramMessage($chatId, $responseText, $keyboard);
         } elseif (isset($data['callback_query'])) {
 
             $this->handleCallbackQuery($data['callback_query']);
         }
 
         return response()->json(['status' => 'success']);
-    }
-
-    protected function handleCallbackQuery($callbackQuery)
-    {
-        $chatId = $callbackQuery['message']['chat']['id'];
-        $callbackData = $callbackQuery['data'];
-
-        if (strpos($callbackData, 'select_time_') === 0) {
-            $selectedTime = substr($callbackData, 12);
-            $tmp = Cache::get('temp_order');
-            // Memproses pemilihan tanggal yang dipilih
-
-            $tmp += ['jam' => $selectedTime];
-
-            Cache::put('temp_order', $tmp, now()->addMinutes(5));
-
-            // Lakukan tindakan berdasarkan tanggal yang dipilih
-
-            $responseText = " ### Berikut adalah informasi sementara barang yang anda pesan ### " . "\n";
-            $responseText .= "|- Kode Barang : " . $tmp['kode'] . "\n";
-            $responseText .= "|- Nama Barang : "  . $tmp['nama'] .   "\n";
-            $responseText .= "|- Tanggal Sewa : " . $tmp['tanggal'] . "\n";
-            $responseText .= "|- Jam Sewa : " . $tmp['jam'] . "\n";
-            $responseText .= "|- Hari : "  . "\n";
-            $responseText .= "Lanjutkan dengan memilih jumlah hari Jam (1-5 hari).";
-
-            $keyboard = [];
-            for ($i = 1; $i <= 5; $i++) { // Ganti 3 dengan jumlah hari yang Anda inginkan
-                $day = $i;
-                $keyboard[] = [['text' => $day, 'callback_data' => 'select_day_' . $day]];
-            }
-
-            // Mengirim inline keyboard dengan tombol jam sewa
-            $inlineKeyboard = [
-                'inline_keyboard' => $keyboard,
-            ];
-            Telegram::sendMessage([
-                'chat_id' => $chatId,
-                'text' => $responseText,
-                'reply_markup' => json_encode($inlineKeyboard),
-            ]);
-        } elseif (strpos($callbackData, 'select_day_') === 0) {
-            $selectedDay = substr($callbackData, 11);
-            $tmp = Cache::get('temp_order');
-            // Memproses pemilihan tanggal yang dipilih
-            $tmp += ['hari' => $selectedDay];
-
-            Cache::put('temp_order', $tmp, now()->addMinutes(5));
-
-            // Lakukan tindakan berdasarkan tanggal yang dipilih
-
-            $dt = User::where('telegram_id', $chatId)->first();
-            $barang = Barang::where('kode_barang', $tmp['kode'])->first();
-            if ($barang) {
-                $bd = BarangDetail::where([
-                    'barang_id' => $barang->id,
-                    'status_sewa' => 0,
-                ])->orderBy('id', 'ASC')->first();
-
-                $dateString = $tmp['tanggal']; // Ganti dengan tanggal yang sesuai
-                $originalDate = Carbon::createFromFormat('d-m-Y', $dateString);
-                $newDateFormat = $originalDate->format('Y-m-d');
-
-                $kembali = $originalDate->addDays($tmp['hari'])->format('Y-m-d');
-
-
-
-                if ($bd) {
-                    $bd->update([
-                        'mulai' => $newDateFormat . ' ' . $tmp['jam'] . ':00',
-                        'status_sewa' => 1,
-                        'kembali' => $kembali . ' ' . $tmp['jam'] . ':00',
-                        'penyewa' => $dt->id,
-                    ]);
-
-                    $responseText = " ### Berikut adalah informasi barang yang anda pesan ### " . "\n";
-                    $responseText .= "|- Kode Barang : " . $tmp['kode'] . "\n";
-                    $responseText .= "|- Nama Barang : "  . $tmp['nama'] .   "\n";
-                    $responseText .= "|- Tanggal Sewa : " . $tmp['tanggal'] . "\n";
-                    $responseText .= "|- Jam Sewa : " . $tmp['jam'] . "\n";
-                    $responseText .= "|- Hari : " . $tmp['hari'] . "\n";
-                    $responseText .= "Terimaksih datamu berhasil disimpan";
-
-
-                    $link = 'https://1587-114-142-168-2.ngrok-free.app/dashboard/pembayaran/create?brg_dtl=7';
-
-                    $responseText .= "Anda dapat segera melakukan pembayaran melalui link berikut ini " . $link . "\n";
-                    $responseText .= "\n";
-                } else {
-                    $br = BarangDetail::where([
-                        'barang_id' => $barang->id,
-                        'status_sewa' => 1,
-                    ])->orderBy('kembali', 'ASC')->first();
-                    $responseText = "Yahh........., barang yang kamu inginkan saat ini sedang sedang full booked. Ada 1 barang yang paling dekat ready di tanggal " . tgl($br->kembali) . ". Gimana? kalau masih minat dengan barang ini kamu bisa klik link berikut agar di daftarkan di data waitinglist oleh admin" . "\n"  . "\n" . "nanti admin kabari kalo barangnya ready";
-                }
-            } else {
-                $responseText = 'Format yang anda masukkan salah . kode barang '  . 'tidak di temukan' . "\n";
-            }
-
-            Telegram::sendMessage([
-                'chat_id' => $chatId,
-                'text' => $responseText,
-            ]);
-        } elseif (strpos($callbackData, 'select_date_') === 0) {
-            // Memproses pemilihan jam sewa yang dipilih
-            $selectedDate = substr($callbackData, 12); // Menghapus 'select_time_'
-
-            // Lakukan tindakan berdasarkan jam sewa yang dipilih
-            $responseText = "Anda telah memilih Tanggal sewa pada  $selectedDate. Silakan lanjutkan langkah berikutnya.";
-
-            // Kirim tanggapan kepada Telegram (misalnya, menghapus keyboard inline)
-            Telegram::answerCallbackQuery([
-                'callback_query_id' => $callbackQuery['id'],
-                'text' => $responseText,
-            ]);
-
-            $tmp = Cache::get('temp_order');
-            // Memproses pemilihan tanggal yang dipilih
-
-            $tmp += ['tanggal' => $selectedDate];
-
-            Cache::put('temp_order', $tmp, now()->addMinutes(5));
-
-
-            // Lakukan tindakan berdasarkan tanggal yang dipilih
-
-            $responseText = " ### Berikut adalah informasi sementara barang yang anda pesan ### " . "\n";
-            $responseText .= "|- Kode Barang : " . $tmp['kode'] . "\n";
-            $responseText .= "|- Nama Barang : "  . $tmp['nama'] .   "\n";
-            $responseText .= "|- Tanggal Sewa : " . $tmp['tanggal'] . "\n";
-            $responseText .= "|- Jam Sewa : " . "\n";
-            $responseText .= "Lanjutkan dengan memilih jam sewa. Jam (09 - 14).";
-
-            $currentHour = 9; // Jam mulai
-            $endHour = 16;    // Jam berakhir
-
-            // Membuat inline keyboard dengan tombol jam sewa
-            $keyboard = [];
-            while ($currentHour <= $endHour) {
-                $time = str_pad($currentHour, 2, '0', STR_PAD_LEFT) . ':00'; // Format jam
-                $keyboard[] = [['text' => $time, 'callback_data' => 'select_time_' . $time]];
-                $currentHour++;
-            }
-
-            // Mengirim inline keyboard dengan tombol jam sewa
-            $inlineKeyboard = [
-                'inline_keyboard' => $keyboard,
-            ];
-            Telegram::sendMessage([
-                'chat_id' => $chatId,
-                'text' => $responseText,
-                'reply_markup' => json_encode($inlineKeyboard),
-            ]);
-        } else {
-            // Callback data tidak dikenali
-            $responseText = "Maaf, tindakan tidak dikenali.";
-            Telegram::answerCallbackQuery([
-                'callback_query_id' => $callbackQuery['id'],
-                'text' => $responseText,
-            ]);
-        }
     }
 
     private function sendTelegramMessage($chatId, $text, $keyboard)

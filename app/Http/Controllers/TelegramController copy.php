@@ -572,14 +572,14 @@ class TelegramController extends Controller
                         'status_sewa' => 1,
                     ])->orderBy('kembali', 'ASC')->first();
 
-                    // $tgl_a = $tgl . ':00';
-                    // $e = $barang->kode_barang . '_' . $tgl_a . '_' . $hari;
+                    $tgl_a = $tgl . ':00';
+                    $e = $barang->kode_barang . '_' . $tgl_a . '_' . $hari;
 
-                    // $ee = base64_encode($e);
+                    $ee = base64_encode($e);
 
-                    // $r = str_replace('=', '', $ee);
+                    $r = str_replace('=', '', $ee);
 
-                    // $link = "/wt_" . $r;
+                    $link = "/wt_" . $r;
                     $responseText = "Yahh........., barang yang kamu inginkan saat ini sedang sedang full booked. Ada 1 barang yang paling dekat ready di tanggal " . tgl($br->kembali) . ". Gimana? kalau masih minat dengan barang ini kamu bisa klik link berikut agar di daftarkan di data waitinglist oleh admin" . "\n"  . "\n" . "nanti admin kabari kalo barangnya ready";
                 }
             } else {

@@ -98,14 +98,15 @@
                             <input type="hidden" class="form-control" value="{{ tgl($data->mulai) }}">
                             <input type="hidden" class="form-control" value="{{ tgl($data->kembali) }}">
 
+                            {{-- @dd($data) --}}
                             <div class="form-group col-md-12">
                                 <label for="">Tanggal Sewa</label>
-                                <input type="text" class="form-control" name="tanggal" disabled
+                                <input type="text" class="form-control" name="tanggal" readonly
                                     value="{{ tgl_full($data->mulai) }}">
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="">Tanggal Kembali</label>
-                                <input type="text" class="form-control" name="tanggal" disabled
+                                <input type="text" class="form-control" name="tanggal_kembali" readonly
                                     value="{{ tgl_full($data->kembali) }}">
                             </div>
                             <div class="form-group col-md-12">

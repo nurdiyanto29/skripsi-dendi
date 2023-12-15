@@ -17,6 +17,8 @@ class HomeController extends Controller
         $data = [
             'barang' => Barang::orderBy('created_at', 'desc')->take(8)->get()
         ];
+
+        if(Auth::check() && !Auth::user()->telegram_id) return view('blank');
         return $this->view('frontend.home',$data);
     }
 
