@@ -105,13 +105,10 @@
 
                                             <td>{{ $dt->status_sewa ? 'Disewa' : 'Ready' }}</td>
                                             <td>{{ tgl_full($dt->mulai) }} - {{ tgl_full($dt->kembali) }}</td>
-                                            {{-- <td>{{ $dt->penyewa()->first()->name ?? '' }}</td> --}}
                                             <td style="text-align: center"> <a href="#" class="nav-link has-dropdown"
                                                     data-toggle="dropdown"><i class="fa fa-ellipsis-h "
                                                         style="color: #777778"></i></a>
                                                 <ul class="dropdown-menu">
-                                                    <li><a class="nav-link" id="edit-data"
-                                                            href="{{ route('barang.edit', $dt->id) }}">Edit</a></li>
                                                     <li> <a href="#" class="nav-link" id="delete-data" data-id={{ $dt->id }}
                                                             data-nama={{ $dt->nama }} 
                                                             data-toggle="modal" data-target="#deleteModal">Delete</a>

@@ -75,6 +75,7 @@ class TelegramController extends Controller
     {
         $data = $request->all();
         // Periksa apakah ada pesan yang diterima
+
         if (isset($data['message'])) {
             $message = $data['message'];
 
@@ -94,30 +95,10 @@ class TelegramController extends Controller
             $now = Carbon::now();
 
             if ($text === '/start') {
-                $user = User::where('telegram_id', $chatId)->first();
-
-                if ($user) {
-                    $responseText = 'Halo! Bro/Sist '  . $username . '. Selamat datang di Gading Adventure. Kondisi akunmu untuk sistem telegram kami baik baik saja. Anda dapat klik /profil untuk melihat lebih detail';
-                }
-                if (!$user) {
-                    $responseText = 'Halo! Bro/Sist '  . $username . ' Saat ini akunmu belum terdaftar di sistem kami. klik /registrasi untuk melakukan pendaftaran dan ikuti langkah selanjutnya. .';
-                }
+                $this->handleStart($chatId, $username);
+                
             } elseif ($text === '/registrasi') {
-
-                $dt = User::where('telegram_id', $chatId)->first();
-                if ($dt == null) {
-                    $respon1 = 'Copy format di bawah ini dan masukkan datanya' . "\n";
-
-                    $responseText = 'Nama:' . "\n";
-                    $responseText .= 'Email:' . "\n";
-                    $responseText .= 'Alamat:' . "\n";
-                    $responseText .= 'Hp:' . "\n";
-                    $responseText .= 'Password:' . "\n";
-                } else {
-                    $responseText = 'Anda sudah terdaftar di sistem kami, tidak perlu lagi melakukan registrasi. Anda dapat melihat informasi profile anda dengan klik atau mengetikkan /profil' . "\n";
-                }
-
-                // Tambahkan langkah berikutnya untuk menangkap input pengguna setelah perintah /registrasi
+                $this->handleRegistrasi($chatId, $username);
             } elseif (strpos($text, 'Nama:') !== false && strpos($text, 'Email:') !== false  && strpos($text, 'Alamat:') !== false  && strpos($text, 'Hp:') !== false  && strpos($text, 'Password:') !== false) {
                 $nama = null;
                 $email = null;
@@ -145,7 +126,7 @@ class TelegramController extends Controller
 
                 if ($nama && $email && $alamat && $hp && $password) {
 
-                    $link = config('base.url').'/login';
+                    $link = config('base.url') . '/login';
                     $dt = User::where('email', $email)->first();
                     if ($dt) {
                         $responseText = 'Saat ini emailmu sudah terdaftar di sistem kami silahkan login ' . $link . ' sesuai email dan password yang kamu daftarkan sebelumnya';
@@ -424,7 +405,7 @@ class TelegramController extends Controller
                     if (strpos($line, 'KONFIRMASI WAITING LIST 0000') !== false) {
                         $bd_id = trim(str_replace('KONFIRMASI WAITING LIST 0000', '', $line));
                     } elseif (strpos($line, 'Jumlah Hari :') !== false) {
-                        $hari = trim(str_replace('Jumlah Hari : ', '', $line));
+                        $hari = trim(str_replace('Jumlah Hari :', '', $line));
                     }
                 }
 
@@ -547,15 +528,15 @@ class TelegramController extends Controller
 
                         }
                     }
-                }else{
+                } else {
                     $responseText = 'Pesanan gagal di tambahkan .Pastikan format yang anda masukkan sudah sesuai';
                 }
             } else {
                 // Balas dengan pesan default jika perintah tidak dikenali
                 $responseText = 'Maaf, saya tidak mengenali perintah tersebut.';
             }
-            if (isset($respon1)) $this->sendMsg($chatId, $respon1, $keyboard);
-            if (isset($responseText)) $this->sendTelegramMessage($chatId, $responseText, $keyboard);
+            if (isset($respon1)) $this->sendMsg($chatId, $respon1);
+            if (isset($responseText)) $this->sendTelegramMessage($chatId, $responseText);
         } elseif (isset($data['callback_query'])) {
 
             $this->handleCallbackQuery($data['callback_query']);
@@ -564,7 +545,39 @@ class TelegramController extends Controller
         return response()->json(['status' => 'success']);
     }
 
-    private function sendTelegramMessage($chatId, $text, $keyboard)
+    private function handleStart($chatId, $username)
+    {
+        $user = User::where('telegram_id', $chatId)->first();
+        if ($user) {
+            $responseText = 'Halo 🖐 Bro/Sist '   .$username. '. Selamat datang di Gading Adventure. Kondisi akunmu untuk sistem telegram kami baik baik saja. Anda dapat klik /profil untuk melihat lebih detail';
+        }
+        if (!$user) {
+            $responseText = 'Halo 🖐 Bro/Sist '   .$username. ' Saat ini akunmu belum terdaftar di sistem kami. klik /registrasi untuk melakukan pendaftaran dan ikuti langkah selanjutnya. .';
+        }
+        $this->sendTelegramMessage($chatId, $responseText);
+
+        return response('Handling /help command');
+    }
+    private function handleRegistrasi($chatId, $username)
+    {
+        $dt = User::where('telegram_id', $chatId)->first();
+                if ($dt == null) {
+                    $respon1 = 'Copy format di bawah ini dan masukkan datanya' . "\n";
+                    $responseText = 'Nama:' . "\n";
+                    $responseText .= 'Email:' . "\n";
+                    $responseText .= 'Alamat:' . "\n";
+                    $responseText .= 'Hp:' . "\n";
+                    $responseText .= 'Password:' . "\n";
+                } else {
+                    $responseText = 'Anda sudah terdaftar di sistem kami, tidak perlu lagi melakukan registrasi. Anda dapat melihat informasi profile anda dengan klik atau mengetikkan /profil' . "\n";
+                }
+        $this->sendTelegramMessage($chatId, $responseText);
+
+        return response('Handling /registrasi command');
+    }
+
+
+    private function sendTelegramMessage($chatId, $text)
     {
         $url = 'https://api.telegram.org/bot' . env('TELEGRAM_BOT_TOKEN') . '/sendMessage';
         $messageData = [
@@ -572,14 +585,14 @@ class TelegramController extends Controller
             'text' => $text,
         ];
 
-        if ($keyboard !== null) {
-            $messageData['reply_markup'] = json_encode($keyboard);
-        }
+        // if ($keyboard !== null) {
+        //     $messageData['reply_markup'] = json_encode($keyboard);
+        // }
 
         Telegram::sendMessage($messageData);
     }
 
-    private function sendMsg($chatId, $text, $keyboard)
+    private function sendMsg($chatId, $text)
     {
         $url = 'https://api.telegram.org/bot' . env('TELEGRAM_BOT_TOKEN') . '/sendMessage';
         $messageData = [
@@ -587,9 +600,9 @@ class TelegramController extends Controller
             'text' => $text,
         ];
 
-        if ($keyboard !== null) {
-            $messageData['reply_markup'] = json_encode($keyboard);
-        }
+        // if ($keyboard !== null) {
+        //     $messageData['reply_markup'] = json_encode($keyboard);
+        // }
 
         Telegram::sendMessage($messageData);
     }
