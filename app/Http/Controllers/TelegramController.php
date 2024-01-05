@@ -53,7 +53,8 @@ class TelegramController extends Controller
     {
         // dd(1);
         Telegram::sendMessage([
-            'chat_id' => '5237463607',
+            // 'chat_id' => '5237463607',
+            'chat_id' => '5881233108',
             'parse_mode' => 'HTML',
             'text' => 'lov yu dek. wkkwkwwk'
         ]);
