@@ -36,10 +36,7 @@ class Controller extends BaseController
 
             $data['menu_container'] += [
                 
-                'Profil' => [
-                    'Ubah Password' => '/',
-                    'Informasi' => '/',
-                ],
+             
 
                 'Pesanan Anda' => [
                     'Riwayat Pesan' => '/dashboard/pesanan',
