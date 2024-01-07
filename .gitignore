@@ -1,5 +1,6 @@
 /node_modules
 /public/hot
+/config/base.php
 /public/storage
 /public/uploads/bukti_bayar
 /public/uploads/images

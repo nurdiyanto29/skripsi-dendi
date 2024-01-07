@@ -70,19 +70,26 @@
                             <h3 class="my-3">{{ $data->nama }}</h3>
                             <p>{!! $data->deskripsi !!}</p>
                             <hr>
-                            <h4><span style="color: red; font-weight:900"> {{ $data->barangDetail()->count() }}</span> Total stok
+                            <h4><span style="color: red; font-weight:900"> {{ $data->barangDetail()->count() }}</span> Total
+                                stok
                             </h4>
                             <h4><span style="color: red; font-weight:900"> {{ $data->barangReady() }}</span> Stok Ready
                             </h4>
                             <h4><span style="color: red; font-weight:900"> {{ $data->barangDisewa() }}</span> Stok Disewa
                             </h4>
-                         
+
                             <div class="bg-gray py-2 px-3 mt-4">
                                 <h2 class="mb-0">
                                     @currency($data->harga_sewa)
                                 </h2>
                             </div>
                             <br><br>
+                            <div class="mb-2">
+                                <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#add_barang"
+                                    type="button">
+                                    <i class="fas fa-plus"></i> Tambah
+                                </button>
+                            </div>
                             <table id="example1" class="table table-bordered table-striped">
                                 <thead>
                                     <tr style="text-align: center">
@@ -105,18 +112,12 @@
 
                                             <td>{{ $dt->status_sewa ? 'Disewa' : 'Ready' }}</td>
                                             <td>{{ tgl_full($dt->mulai) }} - {{ tgl_full($dt->kembali) }}</td>
-                                            {{-- <td>{{ $dt->penyewa()->first()->name ?? '' }}</td> --}}
-                                            <td style="text-align: center"> <a href="#" class="nav-link has-dropdown"
-                                                    data-toggle="dropdown"><i class="fa fa-ellipsis-h "
-                                                        style="color: #777778"></i></a>
-                                                <ul class="dropdown-menu">
-                                                    <li><a class="nav-link" id="edit-data"
-                                                            href="{{ route('barang.edit', $dt->id) }}">Edit</a></li>
-                                                    <li> <a href="#" class="nav-link" id="delete-data" data-id={{ $dt->id }}
-                                                            data-nama={{ $dt->nama }} 
-                                                            data-toggle="modal" data-target="#deleteModal">Delete</a>
-                                                    </li>
-                                                </ul>
+                                            <td>
+                                                <button class="btn btn-danger btn-xs"
+                                                    onclick="window.location='{{ url('barang_detail/delete?_i=' . $dt->id.'&&_barang_id='.$dt->barang_id) }}'"
+                                                    type="button">
+                                                    <i class="fas fa-trash"></i> Hapus
+                                                </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -128,6 +129,38 @@
                 <!-- /.card-body -->
             </div>
             <!-- /.card -->
+
+            <div class="modal fade" id="add_barang" tabindex="-1" role="dialog" aria-labelledby="JenisTitle"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="JenisTitle">Tambah jumlah barang untuk {{$data->nama}}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ url('barang_detail/store') }}" name="form" id="form" method="post"
+                            enctype="multipart/form-data">
+                            @csrf
+                            <div class="errr">
+                                <div class="errorTxt"></div>
+                            </div>
+                                <input type="hidden" class="form-control" id="barang_id" name="barang_id" value="{{$data->id}}" required>
+                            <div class="form-group">
+                                <label style="color: #6c757d">Masukkan Jumlah</label>
+                                <input type="number" class="form-control" id="jumlah" name="jumlah" required>
+                            </div>
+                            <div class="modal-footer bg-whitesmoke" style="margin-right:-25px">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Simpan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         </section>
         <!-- /.content -->

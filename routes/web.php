@@ -71,6 +71,10 @@ Route::group(['middleware' => ['cekrole:Pemilik']], function(){
     Route::POST('/barang/store', [BarangController::class, 'store'])->name('barang.store');
     Route::put('/barang/update/{id}', [BarangController::class, 'update'])->name('barang.update');
     Route::post('/barang/delete', [BarangController::class, 'destroy'])->name('barang.delete');
+
+
+    Route::get('/barang_detail/delete', [BarangController::class, 'destroy_barang_detail'])->name('barang_detail.delete');
+    Route::post('/barang_detail/store', [BarangController::class, 'barang_detail_post'])->name('barang_detail.store');
     
     
     Route::get('/pesanan', [PesananController::class, 'index'])->name('pesanan.index');
