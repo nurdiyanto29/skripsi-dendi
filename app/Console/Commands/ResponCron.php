@@ -47,7 +47,6 @@ class ResponCron extends Command
 
         $add = $no->addHour(1);
 
-        // dd($now, $oneHourLater);
         $overdueItems = BarangDetail::where('kembali', '<=', $now)->get();
 
         foreach ($overdueItems as $item) {

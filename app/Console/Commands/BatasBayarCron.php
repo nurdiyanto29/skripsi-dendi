@@ -51,7 +51,7 @@ class BatasBayarCron extends Command
 
         $add = $no->addHour(1);
 
-        $jam = $now->subHours(1); //12 jam yang lalu
+        $jam = $now->subMinutes(5); //12 jam yang lalu
 
         $blm_bayar = Pesanan::where('status', 0)
         ->where('mulai', '<=', $jam)
