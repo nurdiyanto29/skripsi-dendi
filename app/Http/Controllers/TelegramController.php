@@ -406,7 +406,7 @@ class TelegramController extends Controller
                     if (strpos($line, 'KONFIRMASI WAITING LIST 0000') !== false) {
                         $bd_id = trim(str_replace('KONFIRMASI WAITING LIST 0000', '', $line));
                     } elseif (strpos($line, 'Jumlah Hari :') !== false) {
-                        $hari = trim(str_replace('Jumlah Hari :', '', $line));
+                        $hari = trim(str_replace('Jumlah Hari:', '', $line));
                     }
                 }
 
