@@ -1,4 +1,4 @@
 <?php
 return [
-    'url' => 'https://dendi.gadingadv.my.id',
+    'url' => 'https://web.nrdev.my.id',
 ];
