@@ -60,6 +60,38 @@ class TelegramController extends Controller
         ]);
     }
 
+    public function resetAllChats(Request $request)
+    {
+        // Ambil token bot dari konfigurasi
+        $botToken = config('telegram.token');
+
+        // Dapatkan daftar obrolan
+        $response = Http::get("https://api.telegram.org/bot{$botToken}/getUpdates");
+        $chats = $response->json('result');
+
+        // Iterasi melalui daftar obrolan dan hapus pesan
+        foreach ($chats as $chat) {
+            $chatId = $chat['message']['chat']['id'];
+            $messageId = $chat['message']['message_id'];
+
+            $this->deleteMessage($chatId, $messageId);
+        }
+
+        return response()->json(['status' => 'success']);
+    }
+
+    private function deleteMessage($chatId, $messageId)
+    {
+        // Ambil token bot dari konfigurasi
+        $botToken = config('telegram.token');
+
+        // Hapus pesan menggunakan metode deleteMessage
+        Http::get("https://api.telegram.org/bot{$botToken}/deleteMessage", [
+            'chat_id' => $chatId,
+            'message_id' => $messageId,
+        ]);
+    }
+
     function messages()
     {
         return Telegram::getUpdates();

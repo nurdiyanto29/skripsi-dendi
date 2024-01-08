@@ -48,9 +48,16 @@ Route::get('/delete', function () {
    
 });
 
+
+
 Route::group(['prefix' => 'telegram'], function(){
     // Route::get('messages', [TelegramController::class, 'messages']);
     Route::get('messages', [TelegramController::class,'sendMessage']);
+    
+    Route::get('reset', [TelegramController::class,'resetAllChats']);
+    
+
+
 
     Route::get('set-webhook', [TelegramController::class,'setWebhook']);
     // Route::match(['get','post'],'webhook/{token}', [TelegramController::class,]'webhook');
