@@ -81,7 +81,7 @@ class TelegramController extends Controller
             $message = $data['message'];
 
             // Dapatkan informasi pesan
-            $chatId = $message['from']['id'];
+            $chatId = $message['chat']['id'];
 
             $keyboard = null;
             $respon1 = null;
