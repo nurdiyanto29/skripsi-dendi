@@ -81,7 +81,7 @@ class TelegramController extends Controller
             $message = $data['message'];
 
             // Dapatkan informasi pesan
-            $chatId = $message['chat']['id'];
+            $chatId = $message['from']['id'];
 
             $keyboard = null;
             $respon1 = null;
@@ -97,7 +97,6 @@ class TelegramController extends Controller
 
             if ($text === '/start') {
                 $this->handleStart($chatId, $username);
-                
             } elseif ($text === '/registrasi') {
                 $this->handleRegistrasi($chatId, $username);
             } elseif (strpos($text, 'Nama:') !== false && strpos($text, 'Email:') !== false  && strpos($text, 'Alamat:') !== false  && strpos($text, 'Hp:') !== false  && strpos($text, 'Password:') !== false) {
@@ -550,10 +549,10 @@ class TelegramController extends Controller
     {
         $user = User::where('telegram_id', $chatId)->first();
         if ($user) {
-            $responseText = 'Halo 🖐 Bro/Sist '   .$username. '. Selamat datang di Gading Adventure. Kondisi akunmu untuk sistem telegram kami baik baik saja. Anda dapat klik /profil untuk melihat lebih detail';
+            $responseText = 'Halo 🖐 Bro/Sist '   . $username . '. Selamat datang di Gading Adventure. Kondisi akunmu untuk sistem telegram kami baik baik saja. Anda dapat klik /profil untuk melihat lebih detail';
         }
         if (!$user) {
-            $responseText = 'Halo 🖐 Bro/Sist '   .$username. ' Saat ini akunmu belum terdaftar di sistem kami. klik /registrasi untuk melakukan pendaftaran dan ikuti langkah selanjutnya. .';
+            $responseText = 'Halo 🖐 Bro/Sist '   . $username . ' Saat ini akunmu belum terdaftar di sistem kami. klik /registrasi untuk melakukan pendaftaran dan ikuti langkah selanjutnya. .';
         }
         $this->sendTelegramMessage($chatId, $responseText);
 
@@ -562,16 +561,17 @@ class TelegramController extends Controller
     private function handleRegistrasi($chatId, $username)
     {
         $dt = User::where('telegram_id', $chatId)->first();
-                if ($dt == null) {
-                    $respon1 = 'Copy format di bawah ini dan masukkan datanya' . "\n";
-                    $responseText = 'Nama:' . "\n";
-                    $responseText .= 'Email:' . "\n";
-                    $responseText .= 'Alamat:' . "\n";
-                    $responseText .= 'Hp:' . "\n";
-                    $responseText .= 'Password:' . "\n";
-                } else {
-                    $responseText = 'Anda sudah terdaftar di sistem kami, tidak perlu lagi melakukan registrasi. Anda dapat melihat informasi profile anda dengan klik atau mengetikkan /profil' . "\n";
-                }
+        if ($dt == null) {
+            $respon1 = 'Copy format di bawah ini dan masukkan datanya' . "\n";
+            $responseText = 'Nama:' . "\n";
+            $responseText .= 'Email:' . "\n";
+            $responseText .= 'Alamat:' . "\n";
+            $responseText .= 'Hp:' . "\n";
+            $responseText .= 'Password:' . "\n";
+        } else {
+            $responseText = 'Anda sudah terdaftar di sistem kami, tidak perlu lagi melakukan registrasi. Anda dapat melihat informasi profile anda dengan klik atau mengetikkan /profil' . "\n";
+        }
+        $this->sendMsg($chatId, $respon1);
         $this->sendTelegramMessage($chatId, $responseText);
 
         return response('Handling /registrasi command');

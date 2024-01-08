@@ -161,7 +161,7 @@ class PesananController extends Controller
     private function sendTelegramMessage($chatId, $text)
     {
         Telegram::sendMessage([
-            'chat_id' => $chatId,
+            'chat_id' => trim($chatId),
             'text' => $text,
         ]);
     }
