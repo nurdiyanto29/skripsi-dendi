@@ -125,7 +125,7 @@
                                         <input class="form-check-input" type="radio" name="tipe_bayar" value="cod"
                                             id="cod" checked>
                                         <label class="form-check-label" for="cod">
-                                            COD
+                                            Bayar Di Toko
                                         </label>
                                     </div>
                                     <div class="form-check">
