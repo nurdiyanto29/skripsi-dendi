@@ -570,7 +570,7 @@ class TelegramController extends Controller
                 // Balas dengan pesan default jika perintah tidak dikenali
                 $responseText = 'Maaf, saya tidak mengenali perintah tersebut.';
             }
-            if (isset($respon1)) $this->sendMsg($chatId, $respon1);
+            // if (isset($respon1)) $this->sendMsg($chatId, $respon1);
             if (isset($responseText)) $this->sendTelegramMessage($chatId, $responseText);
         } elseif (isset($data['callback_query'])) {
 
@@ -606,7 +606,7 @@ class TelegramController extends Controller
         } else {
             $responseText = 'Anda sudah terdaftar di sistem kami, tidak perlu lagi melakukan registrasi. Anda dapat melihat informasi profile anda dengan klik atau mengetikkan /profil' . "\n";
         }
-        $this->sendMsg($chatId, $respon1);
+        // $this->sendMsg($chatId, $respon1);
         $this->sendTelegramMessage($chatId, $responseText);
 
         return response('Handling /registrasi command');
