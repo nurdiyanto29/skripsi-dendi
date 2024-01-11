@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BarangDetail;
+use App\Models\Pesanan;
 use App\Models\User;
+use App\Models\WaitingList;
 Use Illuminate\Http\Request;
 
 class UserCOntroller extends Controller
@@ -42,6 +45,21 @@ class UserCOntroller extends Controller
     public function destroy(Request $request)
     {
         $data =User::findorFail($request->id);
+
+        $pesanan = Pesanan::where('user_id', $data->id)->delete();
+        $waiting = WaitingList::where('user_id', $data->id)->delete();
+        $barang_dtl = BarangDetail::where('penyewa', $data->id)->get();
+
+        foreach ($barang_dtl as  $value) {
+            $value->update([
+                'penyewa' => null,
+                'mulai' => null,
+                'kembali' => null,
+                'status_sewa' => 0,
+                'waiting_id' => 0,
+            ]);
+        }
+
         $data->delete();
         return redirect()->back()
         ->with(['t' =>  'success', 'm'=> 'Data berhasil dihapus']);

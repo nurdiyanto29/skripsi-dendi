@@ -15,7 +15,7 @@ class HomeController extends Controller
     function index()
     {
         $data = [
-            'barang' => Barang::orderBy('created_at', 'desc')->take(8)->get()
+            'barang' => Barang::orderBy('created_at', 'desc')->where('status', 1)->take(8)->get()
         ];
 
         if(Auth::check() && !Auth::user()->telegram_id) return view('blank');
@@ -26,7 +26,7 @@ class HomeController extends Controller
     function sewa()
     {
         $data = [
-            'barang' => Barang::orderBy('created_at', 'desc')->get()
+            'barang' => Barang::orderBy('created_at', 'desc')->where('status', 1)->get()
         ];
         return $this->view('frontend.sewa',$data);
     }
