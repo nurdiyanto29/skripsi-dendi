@@ -40,7 +40,10 @@ class PesananController extends Controller
             // dd($barang_id);
             $now = Carbon::now();
             $no = Carbon::now();
-            $add = $no->addHour(1);
+
+
+            // $add = $no->addHour(1); jammm
+            $add =  $no->addMinute(1); //mint
 
             $data->update($data_index);
 
