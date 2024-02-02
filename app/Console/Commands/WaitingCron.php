@@ -48,6 +48,7 @@ class WaitingCron extends Command
         $now = Carbon::now();
         $no = Carbon::now();
         $add = $no->addHour(1);
+
         $overdueItems = BarangDetail::where('kembali', '<=', $now)->get();
         Log::info("barang waiting" . $overdueItems);
         foreach ($overdueItems as $item) {
@@ -61,7 +62,7 @@ class WaitingCron extends Command
                 Telegram::sendMessage([
                     'chat_id' => $waiting->user->telegram_id,
                     'parse_mode' => 'HTML',
-                    'text' => ' Halo ' . $waiting->user->name . ' Barang ' . $item->barang->nama . ' Sudah tersedia. Jika kamu serius untuk melanjutkan pemesanan kamu bisa klik /JADIPESAN_' . $waiting->id . ' jika tak kunjung ada respon selama 1 jam setelah chat ini dikirim maka datamu di waiting list akan terhapus dan akan di lempar ke pelanggang yang lain'
+                    'text' => ' Halo ' . $waiting->user->name . ' Barang ' . $item->barang->nama . ' Sudah tersedia. Jika kamu serius untuk melanjutkan pemesanan kamu bisa klik /JADIPESAN_' . $item->id . ' jika tak kunjung ada respon selama 1 jam setelah chat ini dikirim maka datamu di waiting list akan terhapus dan akan di lempar ke pelanggang yang lain'
                 ]);
     
                 $waiting->update([

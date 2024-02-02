@@ -186,8 +186,7 @@ class TelegramController extends Controller
             } elseif (strpos($text, '/JADIPESAN_') !== false) {
 
                 $tx = explode("_", $text);
-                $responseText = "luput" . $tx[1] . "\n";
-                // $c = count($tx);
+                // $responseText = "luput" . $tx[1] . "\n";
                 $dt = User::where('telegram_id', $chatId)->first();
 
 

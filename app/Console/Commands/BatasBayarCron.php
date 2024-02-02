@@ -49,7 +49,7 @@ class BatasBayarCron extends Command
         $now = Carbon::now();
         $no = Carbon::now();
 
-        $add = $no->addHour(1);
+        // $jam = $no->addHour(1);
 
         $jam = $now->subMinute(3); //12 jam yang lalu
 
