@@ -470,8 +470,12 @@ class TelegramController extends Controller
 
             $link = config('base.url') . '/login';
             $dt = User::where('email', $email)->first();
-            if ($dt) {
-                $responseText = 'Saat ini emailmu sudah terdaftar di sistem kami silahkan login ' . $link . ' sesuai email dan password yang kamu daftarkan sebelumnya';
+
+            $tele = User::where('telegram_id', $chatId)->first();
+
+
+            if ($dt || $tele) {
+                $responseText = 'Saat ini emailmu  atau akun telegramu sudah terdaftar di sistem kami silahkan login ' . $link . ' sesuai email dan password yang kamu daftarkan sebelumnya';
             } else {
 
                $x= User::create([
