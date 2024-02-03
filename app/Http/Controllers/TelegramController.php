@@ -483,7 +483,7 @@ class TelegramController extends Controller
                    'password' => bcrypt($password),
                 ]);
 
-                $responseText = $chatId.'Saat ini akunmu sudah terdaftar di sistem kami silahkan login ' . $link . ' sesuai email dan password yang kamu daftarkan sebelumnya';
+                $responseText = 'Saat ini akunmu sudah terdaftar di sistem kami silahkan login ' . $link . ' sesuai email dan password yang kamu daftarkan sebelumnya';
             }
         } else {
             $responseText = "Proses registrasi anda Gagal Pastikan anda menginputkan dengan format yang benar";
