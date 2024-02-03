@@ -17,8 +17,8 @@ class User extends Authenticatable
         'email',
         'role',
         'password',
+        'alamat',
         'telegram_id',
-        'id_telegram',
     ];
 
     protected $hidden = [
@@ -30,8 +30,9 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function setTelegramIdAttribute($value)
+    public function getTelegramIdAttribute($value)
     {
-        $this->attributes['telegram_id'] = (int)$value;
+        // Remove the "karakter_" prefix
+        return str_replace('gading_tele', '', $value);
     }
 }
