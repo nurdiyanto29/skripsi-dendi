@@ -482,9 +482,6 @@ class TelegramController extends Controller
                     'telegram_id' => $chatId,
                 ]);
 
-                // $x->update([
-                // ]);
-
                 $responseText = $chatId.'Saat ini akunmu sudah terdaftar di sistem kami silahkan login ' . $link . ' sesuai email dan password yang kamu daftarkan sebelumnya';
             }
         } else {
