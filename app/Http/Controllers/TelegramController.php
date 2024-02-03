@@ -471,7 +471,7 @@ class TelegramController extends Controller
             $link = config('base.url') . '/login';
             $dt = User::where('email', $email)->first();
 
-            $tele = User::where('telegram_id', $chatId)->first();
+            $tele = User::where('telegram_id', 'gading_tele'.$chatId)->first();
 
 
             if ($dt || $tele) {
