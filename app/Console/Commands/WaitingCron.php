@@ -47,7 +47,8 @@ class WaitingCron extends Command
     {
         $now = Carbon::now();
         $no = Carbon::now();
-        $add = $no->addHour(1);
+        // $add = $no->addHour(1); // jam
+        $add = $no->subMinute(2); // mnt
 
         $overdueItems = BarangDetail::where('kembali', '<=', $now)->get();
         Log::info("barang waiting" . $overdueItems);
