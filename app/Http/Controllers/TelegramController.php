@@ -473,14 +473,15 @@ class TelegramController extends Controller
             if ($dt) {
                 $responseText = 'Saat ini emailmu sudah terdaftar di sistem kami silahkan login ' . $link . ' sesuai email dan password yang kamu daftarkan sebelumnya';
             } else {
+
                $x= User::create([
-                    'name' => $nama,
-                    'email' => $email,
-                    'alamat' => $alamat,
-                    'tlp' => $hp,
-                    'password' => bcrypt($password),
-                    'telegram_id' => $chatId,
-                    'id_telegram' => $chatId,
+                   'name' => $nama,
+                   'email' => $email,
+                   'alamat' => $alamat,
+                   'tlp' => $hp,
+                   'telegram_id' => ''.$chatId,
+                   'password' => bcrypt($password),
+                    // 'id_telegram' => $chatId,
                 ]);
 
                 $responseText = $chatId.'Saat ini akunmu sudah terdaftar di sistem kami silahkan login ' . $link . ' sesuai email dan password yang kamu daftarkan sebelumnya';
