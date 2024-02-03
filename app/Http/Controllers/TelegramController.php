@@ -479,13 +479,13 @@ class TelegramController extends Controller
                     'alamat' => $alamat,
                     'tlp' => $hp,
                     'password' => bcrypt($password),
-                ]);
-
-                $x->update([
                     'telegram_id' => $chatId,
                 ]);
 
-                $responseText = 'Saat ini akunmu sudah terdaftar di sistem kami silahkan login ' . $link . ' sesuai email dan password yang kamu daftarkan sebelumnya';
+                // $x->update([
+                // ]);
+
+                $responseText = $chatId.'Saat ini akunmu sudah terdaftar di sistem kami silahkan login ' . $link . ' sesuai email dan password yang kamu daftarkan sebelumnya';
             }
         } else {
             $responseText = "Proses registrasi anda Gagal Pastikan anda menginputkan dengan format yang benar";
