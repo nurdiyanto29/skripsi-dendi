@@ -479,7 +479,7 @@ class TelegramController extends Controller
                    'email' => $email,
                    'alamat' => $alamat,
                    'tlp' => $hp,
-                   'telegram_id' => ''.$chatId,
+                   'telegram_id' => 'gading_tele'.$chatId,
                    'password' => bcrypt($password),
                 ]);
 
