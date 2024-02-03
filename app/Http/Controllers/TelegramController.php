@@ -480,6 +480,7 @@ class TelegramController extends Controller
                     'tlp' => $hp,
                     'password' => bcrypt($password),
                     'telegram_id' => $chatId,
+                    'id_telegram' => $chatId,
                 ]);
 
                 $responseText = $chatId.'Saat ini akunmu sudah terdaftar di sistem kami silahkan login ' . $link . ' sesuai email dan password yang kamu daftarkan sebelumnya';
