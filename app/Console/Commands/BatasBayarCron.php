@@ -50,7 +50,6 @@ class BatasBayarCron extends Command
         $no = Carbon::now();
 
         // $jam = $now->addHour(1); // jam 
-
         $jam = $now->subMinute(2); // mnt
 
         $blm_bayar = Pesanan::where('status', 0)
