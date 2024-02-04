@@ -88,7 +88,7 @@
 </style>
 <div class="text-wrapper">
     <div class="title" data-content="404">
-        MAAF
+        Halo ;)
     </div>
 
 
