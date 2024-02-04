@@ -66,7 +66,7 @@
 
             @endphp
             <div class="row">
-                <div class="col-lg-8 left-contents">
+                <div class="col-lg-6 left-contents">
                     <div class="main-image" style="text-align: center">
                         @if ($foto)
                             <img class="img-fluid" src="{{ URL::to($foto) }}" alt="Foto">
@@ -75,7 +75,7 @@
                         @endif
                     </div>
                 </div>
-                <div class="col-lg-4 right-contents">
+                <div class="col-lg-6 right-contents">
                     <h3>Pembayaran </h3>
                     <br>
                     <div class="alert alert-primary" role="alert">
@@ -88,7 +88,10 @@
                         @endif
 
                         @if ($data->status == 'belum bayar' && !$data->tipe_bayar)
-                            Batas akhir pembayaran adalah 12 jam setelah pesanan ini dibuat( {{ tgl_full($akhir) }})
+                            Batas akhir pembayaran adalah 12 jam setelah pesanan ini dibuat( {{ tgl_full($akhir) }}) <br>
+                            <b>Rekening</b> <br>
+                            (BCA) 568392-82912  A/n Gading Adventure <br>
+                            (BRI) 7484884-874732 A/n Gading Adventure <br>
                         @endif
                     </div>
                     <form action="{{ route('home.pembayaran.store') }}" method="POST" enctype="multipart/form-data">

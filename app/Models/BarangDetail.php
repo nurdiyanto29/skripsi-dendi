@@ -15,7 +15,7 @@ class BarangDetail extends Model
         return $this->belongsTo(Barang::class);
     }
     public function penyewa(){
-        return $this->belongsTo(User::class , 'penyewa');
+        return $this->belongsTo(User::class , 'penyewa', 'id');
     }
     public function pesanan(){
         return $this->hasMany(User::class , 'barang_detail_id');

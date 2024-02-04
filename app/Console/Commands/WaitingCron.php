@@ -50,7 +50,7 @@ class WaitingCron extends Command
         // $add = $no->addHour(1); // jam
         $add = $no->subMinute(5); // mnt
 
-        $overdueItems = BarangDetail::where('kembali', '<=', $now)->get();
+        $overdueItems = BarangDetail::where('kembali', '<=', $now)->whereNotNull('penyewa')->get();
         Log::info("barang waiting" . $overdueItems);
         foreach ($overdueItems as $item) {
 

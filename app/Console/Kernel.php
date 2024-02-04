@@ -19,6 +19,7 @@ class Kernel extends ConsoleKernel
         Commands\WaitingCron::class,
         Commands\ResponCron::class,
         Commands\BatasBayarCron::class,
+        Commands\PengingatCron::class,
 
     ];
 
@@ -37,11 +38,12 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
 
     {
-
+        
         $schedule->command('respon:cron')->everyMinute();
         $schedule->command('waiting:cron')->everyMinute();
         $schedule->command('batasbayar:cron')->everyMinute();
-
+        
+        $schedule->command('pengingat:cron')->everyMinute();
     }
 
      

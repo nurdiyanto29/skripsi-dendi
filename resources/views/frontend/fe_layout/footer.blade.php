@@ -17,10 +17,17 @@
 
             <div class="col-lg-3  col-md-6 col-sm-6">
                 <div class="single-footer-widget">
-                    <h4><img src="{{ $_setting['logo'] }}"></h4>
+                    {{-- <h4><img src="{{ $_setting['logo'] }}"></h4> --}}
+                    <p><b>Gading Adventure</b></p>
                     <p>{{ $_setting['alamat'] }}</p>
                     <p>{{ $_setting['email'] }}</p>
-                    <p>{{ $_setting['telepon'] }}</p>
+                </div>
+            </div>
+            <div class="col-lg-3  col-md-6 col-sm-6">
+                <div class="single-footer-widget">
+                    <p><b>Kontak Pengaduan</b></p>
+                    <p>(+62) 873635727272</p>
+                    <p>(+62) 852728282827</p>
                 </div>
             </div>
 
