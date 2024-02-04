@@ -51,32 +51,38 @@ class WaitingCron extends Command
         $add = $no->subMinute(5); // mnt
 
         $overdueItems = BarangDetail::where('kembali', '<=', $now)->whereNotNull('penyewa')->get();
-        Log::info("barang waiting" . $overdueItems);
-        foreach ($overdueItems as $item) {
 
-            $waiting = WaitingList::where('barang_id',$item->barang_id)->orderBy('created_at', 'ASC')->first();
-            Log::info("si waiting" . $item->barang_id);
+        if($overdueItems){
 
-            if($waiting->notif_date == null){
-                //nila notif terkirim kan awalnya null, nah setelah di kirim maka akan ada isi nya. berarti harus mencari waiting 
-                //list yang gak ada null nya dan harus ada waiting id nya di barang detail sekarang lagi ngantrrin siapa gitu anjeng
-                Telegram::sendMessage([
-                    'chat_id' => $waiting->user->telegram_id,
-                    'parse_mode' => 'HTML',
-                    'text' => ' Halo ' . $waiting->user->name . ' Barang ' . $item->barang->nama . ' Sudah tersedia. Jika kamu serius untuk melanjutkan pemesanan kamu bisa klik /JADIPESAN_' . $item->id . ' jika tak kunjung ada respon selama 1 jam setelah chat ini dikirim maka datamu di waiting list akan terhapus dan akan di lempar ke pelanggang yang lain'
-                ]);
+            foreach ($overdueItems as $item) {
     
-                $waiting->update([
-                    'notif_date' => $now,
-                    'kadaluarsa' => $add
-                ]);
+                $waiting = WaitingList::where('barang_id',$item->barang_id)->orderBy('created_at', 'ASC')->first();
+                Log::info("si waiting" . $item->barang_id);
+
+                if($waiting)
     
-                $item->update([
-                    'waiting_id' => $waiting->id
-                ]);
+                if($waiting->notif_date == null){
+                    //nila notif terkirim kan awalnya null, nah setelah di kirim maka akan ada isi nya. berarti harus mencari waiting 
+                    //list yang gak ada null nya dan harus ada waiting id nya di barang detail sekarang lagi ngantrrin siapa gitu anjeng
+                    Telegram::sendMessage([
+                        'chat_id' => $waiting->user->telegram_id,
+                        'parse_mode' => 'HTML',
+                        'text' => ' Halo ' . $waiting->user->name . ' Barang ' . $item->barang->nama . ' Sudah tersedia. Jika kamu serius untuk melanjutkan pemesanan kamu bisa klik /JADIPESAN_' . $item->id . ' jika tak kunjung ada respon selama 1 jam setelah chat ini dikirim maka datamu di waiting list akan terhapus dan akan di lempar ke pelanggang yang lain'
+                    ]);
+        
+                    $waiting->update([
+                        'notif_date' => $now,
+                        'kadaluarsa' => $add
+                    ]);
+        
+                    $item->update([
+                        'waiting_id' => $waiting->id
+                    ]);
+                }
+    
             }
-
         }
+        Log::info("barang waiting" . $overdueItems);
         Log::info("Cron is working fine!" . $waiting);
     }
 }
