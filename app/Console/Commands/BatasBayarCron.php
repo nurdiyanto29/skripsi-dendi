@@ -49,9 +49,8 @@ class BatasBayarCron extends Command
         $now = Carbon::now();
         $no = Carbon::now();
 
-        // $jam = $no->addHour(1);
-
-        $jam = $now->subMinute(5); //12 jam yang lalu
+        // $jam = $now->addHour(1); // jam 
+        $jam = $now->subMinute(2); // mnt
 
         $blm_bayar = Pesanan::where('status', 0)
         ->where('mulai', '<=', $jam)
