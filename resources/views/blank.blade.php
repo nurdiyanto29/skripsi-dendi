@@ -107,4 +107,8 @@
     <div class="buttons">
         <a class="button" href="https://t.me/Gading_advbot" target="blank">GAding Adventure</a>
     </div>
+    <hr>
+    <div class="buttons">
+        <a class="button" href="https://t.me/Gading_advbot" target="blank">Dashboard</a>
+    </div>
 </div>
