@@ -74,6 +74,24 @@
             transition: all 0.2s ease-in-out;
         }
     }
+    .btn_home {
+        margin: 30px;
+        font-weight: 700;
+        border: 2px solid #e0d7d8;
+        text-decoration: none;
+        padding: 15px;
+        text-transform: uppercase;
+        color: #ccc7c8;
+        border-radius: 26px;
+        transition: all 0.2s ease-in-out;
+        display: inline-block;
+
+        .buttons:hover {
+            background-color: #EE4B5E;
+            color: white;
+            transition: all 0.2s ease-in-out;
+        }
+    }
     .barcode-container {
         /* background: #f0f0f0; /* Set your desired background color or image here */
         /* padding: 20px; Adjust padding as needed */ */
@@ -108,7 +126,7 @@
         <a class="button" href="https://t.me/Gading_advbot" target="blank">GAding Adventure</a>
     </div>
     <hr>
-    <div class="buttons">
-        <a class="button" href="https://t.me/Gading_advbot" target="blank">Dashboard</a>
+    <div class="btn_home">
+        <a class="button" href="/" target="blank">Kembali Ke Dashboard</a>
     </div>
 </div>

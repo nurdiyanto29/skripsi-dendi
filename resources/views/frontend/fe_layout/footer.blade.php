@@ -30,7 +30,7 @@
 
         <div class="footer-bottom row align-items-center justify-content-between">
             <p class="footer-text m-0 col-lg-6 col-md-12">
-                Copyright &copy; 2023 All rights reserved by <a href="https://www.google.com"
+                Copyright &copy; 2024 All rights reserved by <a href="/"
                     target="_blank">Gading Adventure</a>
             </p>
             <div class="col-lg-6 col-sm-12 footer-social">
