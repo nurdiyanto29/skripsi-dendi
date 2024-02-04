@@ -384,6 +384,7 @@ class TelegramController extends Controller
     private function handleStart($chatId, $username)
     {
         $user = User::where('telegram_id', 'gading_tele'.$chatId)->first();
+        
         if ($user) {
             $responseText = 'Halo 🖐 Bro/Sist '   . $username . '. Selamat datang di Gading Adventure. Kondisi akunmu untuk sistem telegram kami baik baik saja. Anda dapat klik /profil untuk melihat lebih detail';
         }
