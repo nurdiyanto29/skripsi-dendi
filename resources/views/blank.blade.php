@@ -88,7 +88,7 @@
 </style>
 <div class="text-wrapper">
     <div class="title" data-content="404">
-        MAAF
+        Halo ;)
     </div>
 
 
@@ -99,12 +99,12 @@
         Lengkapi pendaftaran dengan scan QR berikut <br>
         <hr>
         <div class="barcode-container ">
-            <img src="data:image/png;base64,{{DNS2D::getBarcodePNG('https://t.me/gading_adv_bot', 'QRCODE')}}" alt=""> <br> <br>
+            <img src="data:image/png;base64,{{DNS2D::getBarcodePNG('https://t.me/Gading_advbot', 'QRCODE')}}" alt=""> <br> <br>
             atau klik tombol di bawah ini
         </div>
     </div>
 
     <div class="buttons">
-        <a class="button" href="https://t.me/gading_adv_bot" target="blank">GAding ADV BOT</a>
+        <a class="button" href="https://t.me/Gading_advbot" target="blank">GAding Adventure</a>
     </div>
 </div>

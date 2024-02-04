@@ -14,6 +14,13 @@ class HomeController extends Controller
 {
     function index()
     {
+        // $n = 123;
+        // $e =  encrypt($n);
+        // $f =  decrypt($e);
+        // dd([
+        //     'en' =>$e,
+        //     'de' =>$f,
+        // ]);
         $data = [
             'barang' => Barang::orderBy('created_at', 'desc')->where('status', 1)->take(8)->get()
         ];

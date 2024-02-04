@@ -17,6 +17,7 @@ class User extends Authenticatable
         'email',
         'role',
         'password',
+        'alamat',
         'telegram_id',
     ];
 
@@ -28,4 +29,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function getTelegramIdAttribute($value)
+    {
+        // Remove the "karakter_" prefix
+        return str_replace('gading_tele', '', $value);
+    }
 }

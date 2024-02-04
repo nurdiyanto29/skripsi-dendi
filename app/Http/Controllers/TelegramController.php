@@ -81,7 +81,7 @@ class TelegramController extends Controller
                         $t->addDays($hari);
                         // Mengambil hasil tanggal setelah ditambahkan hari
                         $k = $t->format('Y-m-d H:i:s');
-                        $dt = User::where('telegram_id', $chatId)->first();
+                        $dt = User::where('telegram_id', 'gading_tele'.$chatId)->first();
                         if ($dt == null) {
                             $responseText = 'Maaf anda belum terdaftar di sistem kami. ketikan atau klik /registrasi untuk melakukan pendaftaran di sistem kami. Registrasi adalah langkah pertama untuk bisa melakukan pemesanan melalui telegram bot Gading Adventure' . "\n";
                         } else {
@@ -143,7 +143,7 @@ class TelegramController extends Controller
                 $this->handleCatalog($chatId, $barang);
                
             } elseif ($text === '/profil') {
-                $dt = User::where('telegram_id', $chatId)->first();
+                $dt = User::where('telegram_id', 'gading_tele'.$chatId)->first();
                 if ($dt == null) {
                     $responseText = 'Maaf anda belum terdaftar di sistem kami. ketikan atau klik /registrasi untuk melakukan pendaftaran di sistem kami. Registrasi adalah langkah pertama untuk bisa melakukan pemesanan melalui telegram bot Gading Adventure' . "\n";
                 } else {
@@ -159,7 +159,7 @@ class TelegramController extends Controller
 
                 $tx = explode("_", $text);
                 $c = count($tx);
-                $dt = User::where('telegram_id', $chatId)->first();
+                $dt = User::where('telegram_id', 'gading_tele'.$chatId)->first();
                 if ($dt == null) {
                     $responseText = 'Maaf anda belum terdaftar di sistem kami. ketikan atau klik /registrasi untuk melakukan pendaftaran di sistem kami. Registrasi adalah langkah pertama untuk bisa melakukan pemesanan melalui telegram bot Gading Adventure' . "\n";
                 } else {
@@ -187,7 +187,7 @@ class TelegramController extends Controller
 
                 $tx = explode("_", $text);
                 // $responseText = "luput" . $tx[1] . "\n";
-                $dt = User::where('telegram_id', $chatId)->first();
+                $dt = User::where('telegram_id', 'gading_tele'.$chatId)->first();
 
 
                 $barang_detail = BarangDetail::find($tx[1]);
@@ -214,7 +214,7 @@ class TelegramController extends Controller
 
                 $tx = explode("_", $text);
                 // $responseText = "luput" . $tx[1] . "\n";
-                $dt = User::where('telegram_id', $chatId)->first();
+                $dt = User::where('telegram_id', 'gading_tele'.$chatId)->first();
 
                 $barang = Barang::where('kode_barang', trim($tx[3]))->first();
                 $now = Carbon::now();
@@ -242,7 +242,7 @@ class TelegramController extends Controller
                     if (strpos($line, 'KONFIRMASI WAITING LIST 0000') !== false) {
                         $bd_id = trim(str_replace('KONFIRMASI WAITING LIST 0000', '', $line));
                     } elseif (strpos($line, 'Jumlah Hari :') !== false) {
-                        $hari = trim(str_replace('Jumlah Hari:', '', $line));
+                        $hari = trim(str_replace('Jumlah Hari :', '', $line));
                     }
                 }
 
@@ -262,7 +262,7 @@ class TelegramController extends Controller
                             'waiting_id' => NULL,
                         ]);
 
-                        $dt = User::where('telegram_id', $chatId)->first();
+                        $dt = User::where('telegram_id', 'gading_tele'.$chatId)->first();
 
                         $data_order = Pesanan::create([
                             'barang_detail_id' => $e->id,
@@ -336,7 +336,7 @@ class TelegramController extends Controller
                                 'waiting_id' => NULL,
                             ]);
 
-                            $dt = User::where('telegram_id', $chatId)->first();
+                            $dt = User::where('telegram_id', 'gading_tele'.$chatId)->first();
 
                             $data_order = Pesanan::create([
                                 'barang_detail_id' => $e->id,
@@ -383,7 +383,8 @@ class TelegramController extends Controller
 
     private function handleStart($chatId, $username)
     {
-        $user = User::where('telegram_id', $chatId)->first();
+        $user = User::where('telegram_id', 'gading_tele'.$chatId)->first();
+        
         if ($user) {
             $responseText = 'Halo 🖐 Bro/Sist '   . $username . '. Selamat datang di Gading Adventure. Kondisi akunmu untuk sistem telegram kami baik baik saja. Anda dapat klik /profil untuk melihat lebih detail';
         }
@@ -434,7 +435,7 @@ class TelegramController extends Controller
     private function handleRegistrasi($chatId, $username)
     {
         $respon1= null;
-        $dt = User::where('telegram_id', $chatId)->first();
+        $dt = User::where('telegram_id', 'gading_tele'.$chatId)->first();
         if ($dt == null) {
             $respon1 = 'Copy format di bawah ini dan masukkan datanya' . "\n";
             $responseText = 'Nama:' . "\n";
@@ -470,19 +471,21 @@ class TelegramController extends Controller
 
             $link = config('base.url') . '/login';
             $dt = User::where('email', $email)->first();
-            if ($dt) {
-                $responseText = 'Saat ini emailmu sudah terdaftar di sistem kami silahkan login ' . $link . ' sesuai email dan password yang kamu daftarkan sebelumnya';
-            } else {
-               $x= User::create([
-                    'name' => $nama,
-                    'email' => $email,
-                    'alamat' => $alamat,
-                    'tlp' => $hp,
-                    'password' => bcrypt($password),
-                ]);
 
-                $x->update([
-                    'telegram_id' => $chatId,
+            $tele = User::where('telegram_id', 'gading_tele'.$chatId)->first();
+
+
+            if ($dt || $tele) {
+                $responseText = 'Saat ini emailmu  atau akun telegramu sudah terdaftar di sistem kami silahkan login ' . $link . ' sesuai email dan password yang kamu daftarkan sebelumnya';
+            } else {
+
+               $x= User::create([
+                   'name' => $nama,
+                   'email' => $email,
+                   'alamat' => $alamat,
+                   'tlp' => $hp,
+                   'telegram_id' => 'gading_tele'.$chatId,
+                   'password' => bcrypt($password),
                 ]);
 
                 $responseText = 'Saat ini akunmu sudah terdaftar di sistem kami silahkan login ' . $link . ' sesuai email dan password yang kamu daftarkan sebelumnya';
