@@ -36,87 +36,92 @@ class PesananController extends Controller
         return $this->view('frontend.pesanan.waiting', compact('data', 'opt'));
     }
 
+    public function get_data(Request $request)
+    {
+        // dd($request->_i);
+        $barangId = $request->_i;
+
+        $barang = Barang::findOrFail($barangId);
+
+        $result = [];
+        $barangDetails = BarangDetail::where('barang_id', $barang->id)->whereNotNull('mulai')->whereNotNull('kembali')->get();
+        foreach ($barangDetails as $detail) {
+            $start = strtotime($detail->mulai);
+            $end = strtotime($detail->kembali);
+
+            while ($start <= $end) {
+                $result[] = date('Y-m-d', $start);
+                $start = strtotime('+1 day', $start);
+            }
+        }
+        $result = array_unique($result);
+        // dd($result);
+
+        $rentalDates = $result;
+        return response()->json($rentalDates);
+    }
+
     function store(Request $req)
     {
+
+        // dd($_POST);
 
         $data = [];
         $opt = [
             'head' => 'Tambahkan Pesanan'
         ];
         $barang = Barang::find($req->_id);
-        // dd($barang);
         if ($barang) {
             $bd = BarangDetail::where([
                 'barang_id' => $barang->id,
                 'status_sewa' => 0,
             ])->orderBy('id', 'ASC')->first();
 
-            // dd($bd);
             if ($bd) {
-                $tanggal_jam = $req->tanggal . ' ' . $req->jam;
+                // Pisahkan rentang tanggal yang diberikan oleh pengguna
+                $tanggalRentang = explode(' - ', $req->tanggal);
+                $tanggalMulai = new DateTime($tanggalRentang[0]);
+                $tanggalAkhir = new DateTime($tanggalRentang[1]);
+                
+                $tanggalMulaiString = $tanggalMulai->format('Y-m-d');
+                $tanggalAkhirString = $tanggalAkhir->format('Y-m-d');
+                
+                $selisih = $tanggalAkhir->diff($tanggalMulai);
+                
+                $selisihHari = $selisih->days;
+                
 
-                // Create a DateTime object from the combined date and time
-                $datetime = new DateTime($tanggal_jam);
-
-                // Add 2 days to the DateTime object
-                $datetime->modify('+' . $req->hari . 'days');
-
-                // Retrieve the new date and time
-                $new_tanggal = $datetime->format('Y-m-d');
-                $new_jam = $datetime->format('H:i:s');
-
-                $kembali = $new_tanggal . ' ' . $new_jam;
-
-                // dd($kembali, $tanggal_jam);
-
-
+                // Set nilai mulai dan kembali
                 $bd->update([
-                    'mulai' => $tanggal_jam,
+                    'mulai' =>  $tanggalMulaiString. ' ' . $req->jam,
                     'status_sewa' => 1,
-                    'kembali' => $kembali,
+                    'kembali' => $tanggalAkhirString . ' ' . $req->jam,
                     'penyewa' => Auth::user()->id,
                 ]);
-            } else {
-                // $br = BarangDetail::where([
-                //     'barang_id' => $barang->id,
-                //     'status_sewa' => 1,
-                // ])->orderBy('kembali', 'ASC')->first();
+                $data_order = Pesanan::create([
+                    'barang_detail_id' => $bd->id,
+                    'user_id' => Auth::user()->id,
+                    'tipe_bayar' => NULL,
+                    'bukti_bayar' => NULL,
+                    'status' => 'belum bayar',
 
-                // $tgl_a = $tgl . ':00';
-                // $e = $barang->kode_barang . '_' . $tgl_a . '_' . $hari;
+                    'mulai' => $tanggalMulaiString . ' ' . $req->jam,
+                    'kembali' => $tanggalAkhirString . ' ' . $req->jam,
+                    'total' => $bd->barang->harga_sewa * $selisihHari,
 
-                // $ee = base64_encode($e);
+                ]);
 
-                // $r = str_replace('=', '', $ee);
+                $responseText = 'Data Penyewaan berhasil di tambahkan berikut adalah informasi sewa anda' . "\n";
+                $responseText .= "\n";
+                $responseText .= "Nama Barang: $barang->nama\n";
+                $responseText .= "Kode Barang: $barang->kode_barang\n";
+                $responseText .= "Mulai sewa: $tanggalMulaiString . ' ' . $req->jam \n";
+                $responseText .= "Kembali sewa: $tanggalAkhirString . ' ' . $req->jam \n";
+                $link = config('base.url') . '/dashboard/pembayaran/create?brg_dtl=' . $data_order->id;
 
-                // $link = "/wt_" . $r;
-                // $responseText = "Yahh........., barang yang kamu inginkan saat ini sedang sedang full booked. Ada 1 barang yang paling dekat ready di tanggal "  . ". Gimana? kalau masih minat dengan barang ini kamu bisa klik link berikut agar di daftarkan di data waitinglist oleh admin" . "\n"  . "\n" . "nanti admin kabari kalo barangnya ready";
+                $responseText .= "Anda dapat segera melakukan pembayaran melalui link berikut ini " . $link . "\n";
+                $responseText .= "\n";
             }
-
-            $data_order = Pesanan::create([
-                'barang_detail_id' => $bd->id,
-                'user_id' => Auth::user()->id,
-                'tipe_bayar' => NULL,
-                'bukti_bayar' => NULL,
-                'status' => 'belum bayar',
-                
-                'mulai' => $tanggal_jam,
-                'kembali' => $kembali,
-                'total' => $bd->barang->harga_sewa * $req->hari,
-
-
-            ]);
-
-            $responseText = 'Data Penyewaan berhasil di tambahkan berikut adalah informasi sewa anda' . "\n";
-            $responseText .= "\n";
-            $responseText .= "Nama Barang: $barang->nama\n";
-            $responseText .= "Kode Barang: $barang->kode_barang\n";
-            $responseText .= "Mulai sewa: $tanggal_jam \n";
-            $responseText .= "Kembali sewa: $kembali \n";
-            $link = config('base.url') . '/dashboard/pembayaran/create?brg_dtl=' . $data_order->id;
-
-            $responseText .= "Anda dapat segera melakukan pembayaran melalui link berikut ini " . $link . "\n";
-            $responseText .= "\n";
         } else {
             // $responseText = 'Format yang anda masukkan salah . kode barang ' . $kode . 'tidak di temukan' . "\n";
         }

@@ -34,7 +34,7 @@ return [
     'bots'                         => [
         'mybot' => [
             'username'            => 'GadingAdv_bot',
-            'token'               => env('TELEGRAM_BOT_TOKEN', '6263294283:AAGl0J6B3KYHc2mV88z5sEZ7VMgU8UXv5pw'),
+            'token'               => env('TELEGRAM_BOT_TOKEN', '6892237255:AAGYLLTmQkTCyxFFIFEYbGhZf0X5XJsChMo'),
             'certificate_path'    => env('TELEGRAM_CERTIFICATE_PATH', 'YOUR-CERTIFICATE-PATH'),
             'webhook_url'         => env('TELEGRAM_WEBHOOK_URL', 'https://67c9-114-142-171-4.ngrok-free.app/bot-webhook'),
             'commands'            => [

@@ -25,6 +25,7 @@ Route::group(['prefix' => 'dashboard', 'as' => 'home.'], function () {
                         $class = PesananController::class;
                         Route::get('/', [$class, 'index'])->name('index');
                         Route::post('/store', [$class, 'store'])->name('store');
+                        Route::get('/get_data', [$class, 'get_data'])->name('get_data');
                         Route::post('/waiting/store', [$class, 'waiting_store'])->name('waiting.store');
                 });
 

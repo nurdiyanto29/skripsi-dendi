@@ -1,33 +1,3 @@
-{{-- @extends('frontend.fe_layout.with_sidebar')
-
-@section('item')
-    @php
-        $judul = $data->nama ?? $data->judul;
-        $foto = $data->gambar()->first()->file ?? null;
-        // dd($foto);
-        $item_list = $item_list ?? [];
-        
-    @endphp
-    <div class="main-img">
-        @if ($foto)
-            <img class="img-fluid" src="{{ URL::to($foto) }}" alt="Foto" width="100%">
-        @else
-            <img class="img-fluid" src="{{ asset('dist/img/default.jpg') }}" alt="Foto" width="100%">
-        @endif
-    </div>
-
-    <div class="details-content ">
-        <h3 style="margin:20px 0px">{{ $judul }}</h3>
-        <h4>Harga Sewa {{nominal($data->harga_sewa)}}</h4>
-        @foreach ($item_list as $k => $lt)
-            <p>{{ $k }} : {{ $data->{$lt} }}</p>
-        @endforeach
-        {!! $data->deskripsi ?? $data->keterangan !!}
-    </div>
-    <div class="row align-items-center">
-        <a href="{{url('dashboard/pesanan/detail/'.$data->id)}}" class="text-uppercase primary-btn mx-auto mt-40">Order Now</a>
-    </div>
-@endsection --}}
 @extends('frontend.fe_layout.main')
 
 @section('content')
@@ -44,6 +14,8 @@
             max-height: 280px;
         }
     </style>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <!-- start banner Area -->
     <!-- start banner Area -->
     <section class="banner-area relative about-banner" id="home">
@@ -75,7 +47,7 @@
                 $nama = $data->nama;
                 $foto = $data->gambar()->first()->file ?? null;
                 $item_list = $item_list ?? [];
-                
+
             @endphp
             <div class="row">
                 <div class="col-lg-8 left-contents">
@@ -151,27 +123,19 @@
                         <form action="{{ route('home.pesanan.store') }}" method="POST">
                             @csrf
                             <div class="form-row">
-                                @php
-                                    $date = tgl(date('Y-m-d')) . ' ' . date('H:i');
-                                @endphp
+
+
                                 <div class="form-group col-md-12">
-                                    <label for="">Tanggal Mulai Sewa</label>
-                                    <input type="text" class="form-control" id="" value="{{ $date }}"
-                                        readonly @if (!Auth::check()) disabled @endif>
+                                    <input type="text" id="daterange" class="form-control" name="tanggal" />
 
                                 </div>
 
-                                <input type="hidden" name="tanggal" value="{{ date('Y-m-d') }}">
+                                {{-- <input type="hidden" name="tanggal" value="{{ date('Y-m-d') }}"> --}}
                                 <input type="hidden" name="_id" value="{{ $data->id }}">
                                 <div style="display: none" class="form-group col-md-12">
                                     <label for="">Jam Mulai</label>
-                                    <input type="hidden" class="form-control" value="{{ date('H:i:s') }}" id="timeInput"
-                                        name="jam" @if (!Auth::check()) disabled @endif>
-                                </div>
-                                <div class="form-group col-md-12">
-                                    <label for="">Jumlah Hari</label>
-                                    <input type="number" class="form-control" name="hari" min="0" id=""
-                                        placeholder="Jumlah Hari" @if (!Auth::check()) disabled @endif>
+                                    <input type="hidden" class="form-control" value="{{ date('00:00:01') }}"
+                                        id="timeInput" name="jam" @if (!Auth::check()) disabled @endif>
                                 </div>
                             </div>
                             <button type="submit"
@@ -182,3 +146,57 @@
             </div>
         </div>
     @endsection
+    @push('js')
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+        <script>
+           $(function() {
+    var today = new Date();
+    var barang_id = 4;
+    var maxDate = new Date();
+    maxDate.setDate(today.getDate() + 10);
+
+    // Ajax call to fetch rental dates from the backend
+    $.ajax({
+        url: '/dashboard/pesanan/get_data?_i=' + barang_id,
+        method: 'GET',
+        success: function(rentalDates) {
+            $('#daterange').daterangepicker({
+                startDate: today,
+                minDate: today,
+                maxDate: maxDate,
+
+                isInvalidDate: function(date) {
+                    var formattedDate = date.format('YYYY-MM-DD');
+                    return rentalDates.indexOf(formattedDate) !== -1;
+                },
+                locale: {
+                    format: 'YYYY-MM-DD', // Format tanggal
+                    cancelLabel: 'Batal',
+                    applyLabel: 'Pilih',
+                    daysOfWeek: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+                    monthNames: [
+                        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                        'Juli', 'Agustus', 'September', 'Oktober', 'November',
+                        'Desember'
+                    ]
+                }
+            }).on('apply.daterangepicker', function(ev, picker) {
+                var chosenStartDate = picker.startDate;
+                var chosenEndDate = picker.endDate;
+
+                if (chosenEndDate && rentalDates.includes(chosenEndDate.format('YYYY-MM-DD'))) {
+                    alert('Tanggal yang dipilih tidak tersedia untuk pemesanan!');
+                }
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching rental dates:', error);
+        }
+    });
+});
+
+        </script>
+    @endpush

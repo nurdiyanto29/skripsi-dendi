@@ -105,12 +105,12 @@
                             <div class="form-group col-md-12">
                                 <label for="">Tanggal Sewa</label>
                                 <input type="text" class="form-control" name="tanggal" readonly
-                                    value="{{ tgl_full($data->mulai) }}">
+                                    value="{{ tgl($data->mulai, 'DD MMMM Y') }}">
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="">Tanggal Kembali</label>
                                 <input type="text" class="form-control" name="tanggal_kembali" readonly
-                                    value="{{ tgl_full($data->kembali) }}">
+                                    value="{{ tgl($data->kembali, 'DD MMMM Y') }}">
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="">Jumlah Hari</label>
