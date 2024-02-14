@@ -64,11 +64,11 @@ class TelegramController extends Controller
                     $photo = end($message['photo']);
                     $photoId = $photo['file_id'];
 
-                    $telegram = new \Telegram\Bot\Api('6892237255:AAGYLLTmQkTCyxFFIFEYbGhZf0X5XJsChMo');
+                    $telegram = new \Telegram\Bot\Api(config('base.url') );
                     $file = $telegram->getFile(['file_id' => $photoId]);
                     $filePath = $file->getFilePath();
 
-                    $photoContents = file_get_contents('https://api.telegram.org/file/bot' . '6892237255:AAGYLLTmQkTCyxFFIFEYbGhZf0X5XJsChMo' . '/' . $filePath);
+                    $photoContents = file_get_contents('https://api.telegram.org/file/bot' . config('base.token')  . '/' . $filePath);
                     $fileName = 'uploads/bukti_bayar/' . basename($filePath); // Constructing the path
 
                     $cek->update([
