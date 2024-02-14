@@ -64,7 +64,7 @@ class TelegramController extends Controller
                     $photo = end($message['photo']);
                     $photoId = $photo['file_id'];
 
-                    $telegram = new \Telegram\Bot\Api(config('base.url') );
+                    $telegram = new \Telegram\Bot\Api(config('base.token') );
                     $file = $telegram->getFile(['file_id' => $photoId]);
                     $filePath = $file->getFilePath();
 
