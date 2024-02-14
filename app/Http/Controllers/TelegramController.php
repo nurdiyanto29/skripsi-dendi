@@ -30,14 +30,6 @@ class TelegramController extends Controller
 
     public function webhook(Request $request)
     {
-        // $update = $request->input('message');
-        // if (isset($update['photo'])) {
-        //     // Ambil URL foto dengan resolusi tertinggi
-        //     $photo = end($update['photo']);
-        //     $imageUrl = $photo['file_id'];
-
-        //     // Kirim foto sebagai respons
-        //     $this->sendImage($update['chat']['id'], $imageUr
         $data = $request->all();
         if (isset($data['message'])) {
 
@@ -55,36 +47,37 @@ class TelegramController extends Controller
 
                 if ($caption) {
                     $n_caption = str_replace("INV000", "", $caption);
-                    $cek = Pesanan::find($n_caption);
+
+                    $cek = Pesanan::where('id', $n_caption)
+                        ->where('bukti_bayar', null)
+                        ->where('bukti_bayar', null)->first();
 
                     if (!$cek) $responseText = 'Pembayaran dengan kode ' . $caption . ' Tidak ditemukan';
-
-
-                
                     $photo = end($message['photo']);
                     $photoId = $photo['file_id'];
 
-                    $telegram = new \Telegram\Bot\Api('6892237255:AAGYLLTmQkTCyxFFIFEYbGhZf0X5XJsChMo');
+                    $telegram = new \Telegram\Bot\Api('6795475393:AAHO4f-ShvgGcaWo0mIjSHujvYG9xoAK3Mo');
                     $file = $telegram->getFile(['file_id' => $photoId]);
                     $filePath = $file->getFilePath();
 
-                    $photoContents = file_get_contents('https://api.telegram.org/file/bot' . '6892237255:AAGYLLTmQkTCyxFFIFEYbGhZf0X5XJsChMo' . '/' . $filePath);
-                    $fileName = 'uploads/bukti_bayar/' . basename($filePath); // Constructing the path
+                    $photoContents = file_get_contents('https://api.telegram.org/file/bot' . '6795475393:AAHO4f-ShvgGcaWo0mIjSHujvYG9xoAK3Mo' . '/' . $filePath);
+                    $fileName = 'uploads/bukti_bayar/' . basename($filePath);
 
-                    $cek->update([
-                        'bukti_bayar' =>basename($filePath),
-                        'tipe_bayar' =>'tf',
-                        'status' =>'terbayar belum terkonfirmasi',
-                    ]);
+                    if ($cek) {
+                        $cek->update([
+                            'bukti_bayar' => basename($filePath),
+                            'tipe_bayar' => 'tf',
+                            'status' => 'terbayar belum terkonfirmasi',
+                        ]);
 
-                    $directory = public_path('uploads/bukti_bayar');
-                    if (!File::exists($directory)) {
-                        File::makeDirectory($directory, 0777, true, true);
+                        $directory = public_path('uploads/bukti_bayar');
+                        if (!File::exists($directory)) {
+                            File::makeDirectory($directory, 0777, true, true);
+                        }
+
+                        File::put(public_path($fileName), $photoContents);
+                        $responseText = 'Terimakasih. Pembayaran sudah kami terima. Tunggu konfirmasi dari admin ya';
                     }
-
-                    File::put(public_path($fileName), $photoContents);
-                    $responseText = 'Terimakasih. Pembayaran sudah kami terima. Tunggu konfirmasi dari admin ya';
-
                 }
                 if (isset($responseText)) $this->sendTelegramMessage($chatId, $responseText);
             } else {
@@ -223,11 +216,11 @@ class TelegramController extends Controller
 
                                 if ($barang != null) {
 
-                                    $respon1 = 'Berikut Adalah informasi sementara barang yang kamu pesan. Copy informasi dibawah ini dan masukkan jumlah hari pemesanan';
+                                    $respon1 = 'Berikut Adalah informasi sementara barang yang kamu pesan. Copy informasi dibawah ini dan masukkan tanggal sewa dengan format Tahun-Bulan-Tgl (2024-02-01) serta jumlah hari pemesanan';
 
                                     $responseText = "Kode Barang : " . $barang->kode_barang . "\n";
                                     $responseText .= "Nama Barang : "  . $barang->nama .   "\n";
-                                    $responseText .= "Tanggal Sewa : " . Carbon::now() . "\n";
+                                    $responseText .= "Tanggal Sewa : " . "\n";
                                     $responseText .= "Jumlah Hari : ";
                                 } else {
                                     $responseText = "Barang dengan kode $tx[1] tidak ditemukan. Silakan periksa kembali kode barang yang Anda masukkan.";
@@ -346,9 +339,10 @@ class TelegramController extends Controller
 
                         $responseText = 'nssip';
                     }
-                } elseif (strpos($text, 'Kode Barang') !== false && strpos($text, 'Jumlah Hari :') !== false && strpos($text, 'Nama Barang :') !== false) {
+                } elseif (strpos($text, 'Kode Barang') !== false && strpos($text, 'Jumlah Hari :') !== false && strpos($text, 'Nama Barang :') !== false && strpos($text, 'Tanggal Sewa :') !== false) {
                     $kode_barang = null;
                     $hari = null;
+                    $tanggal = null;
 
                     $lines = explode("\n", $text);
                     foreach ($lines as $line) {
@@ -356,11 +350,13 @@ class TelegramController extends Controller
                             $kode_barang = trim(str_replace('Kode Barang :', '', $line));
                         } elseif (strpos($line, 'Jumlah Hari :') !== false) {
                             $hari = trim(str_replace('Jumlah Hari :', '', $line));
+                        } elseif (strpos($line, 'Tanggal Sewa :') !== false) {
+                            $tanggal = trim(str_replace('Tanggal Sewa :', '', $line));
                         }
                     }
 
 
-                    if ($kode_barang && $hari) {
+                    if ($kode_barang && $hari && $tanggal) {
 
                         $brg = Barang::where('kode_barang', $kode_barang)->first();
 
@@ -383,10 +379,15 @@ class TelegramController extends Controller
                             }
 
                             if ($e) {
+                                $tgl = Carbon::createFromFormat('Y-m-d', $tanggal);
+                                $akhir = Carbon::createFromFormat('Y-m-d', $tanggal);
+                                $akhir->addDays($hari);
+                                $akhir->endOfDay();
+
                                 $e->update([
-                                    'mulai' => Carbon::now(),
+                                    'mulai' =>  $tgl->copy()->startOfDay(),
                                     'status_sewa' => 1,
-                                    'kembali' => $now->addDays($hari),
+                                    'kembali' => $akhir,
                                     'waiting_id' => NULL,
                                 ]);
 
@@ -479,13 +480,13 @@ class TelegramController extends Controller
     {
         // Buat path untuk penyimpanan foto
         $photoPath = 'photos/' . $photoData['file_id'] . '.jpg';
-        $response = Http::post('https://api.telegram.org/bot' . '6892237255:AAGYLLTmQkTCyxFFIFEYbGhZf0X5XJsChMo' . '/sendPhoto', [
+        $response = Http::post('https://api.telegram.org/bot' . '6795475393:AAHO4f-ShvgGcaWo0mIjSHujvYG9xoAK3Mo' . '/sendPhoto', [
             'chat_id' => 5881233108,
             'photo' => $photoPath
         ]);
 
         // Dapatkan URL foto menggunakan file_id
-        $photoUrl = 'https://api.telegram.org/file/bot' . '6892237255:AAGYLLTmQkTCyxFFIFEYbGhZf0X5XJsChMo' . '/' . $photoData['file_id'];
+        $photoUrl = 'https://api.telegram.org/file/bot' . '6795475393:AAHO4f-ShvgGcaWo0mIjSHujvYG9xoAK3Mo' . '/' . $photoData['file_id'];
 
         // Unduh dan simpan foto ke folder storage
         $fileContents = file_get_contents($photoUrl);

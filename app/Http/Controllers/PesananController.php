@@ -29,11 +29,20 @@ class PesananController extends Controller
         ];
         $data = Pesanan::find($data_index['id']);
         if (!$data) return redirect()->back()->with(['t' =>  'error', 'm' => 'Data tidak valid']);;
-        $data->update($data_index);
+        $e =$data->update($data_index);
+
 
 
         // if($data_index['status'] == '') // 
-        if ($data_index['status'] == 'terbayar terkonfirmasi') return redirect()->back()->with(['t' =>  'success', 'm' => 'Pesanan sukses di konfirmasi']);
+        if ($data_index['status'] == 'terbayar terkonfirmasi'){
+            Telegram::sendMessage([
+                'chat_id' => $data->user->telegram_id,
+                'parse_mode' => 'HTML',
+                'text' => ' Halo ' . $data->user->name . ' Pembayaran Telah di konfirmasi oleh admin. Barang dapat kamu ambil langsung ke toko sesuai jadwal pesanan ya'
+            ]);
+            return redirect()->back()->with(['t' =>  'success', 'm' => 'Pesanan sukses di konfirmasi']);
+
+        }
 
         if ($data_index['status'] == 'dikembalikan') {
             $barang_detail = $data->barangDetail;
