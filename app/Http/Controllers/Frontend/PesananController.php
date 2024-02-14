@@ -120,7 +120,8 @@ class PesananController extends Controller
                 $link = config('base.url') . '/dashboard/pembayaran/create?brg_dtl=' . $data_order->id;
 
                 $responseText .= "Anda dapat segera melakukan pembayaran melalui link berikut ini " . $link . "\n";
-                $responseText .= "\n";
+                $responseText .= "Atau dapat juga upload bukti pembayaran melalui telegram dengan memberikan caption INV000$data_order->id\n";
+
             }
         } else {
             // $responseText = 'Format yang anda masukkan salah . kode barang ' . $kode . 'tidak di temukan' . "\n";

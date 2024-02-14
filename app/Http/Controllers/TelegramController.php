@@ -2,27 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
+use App\Models\User;
+use Telegram\Bot\Api;
 use App\Models\Barang;
+use App\Models\ChatId;
+
+use GuzzleHttp\Client;
+use App\Models\Pesanan;
+use App\Models\WaitingList;
+use Illuminate\Support\Str;
 use App\Models\BarangDetail;
 use Illuminate\Http\Request;
-use Telegram\Bot\FileUpload\InputFile;
 use Illuminate\Support\Carbon;
-
-use Telegram\Bot\Laravel\Facades\Telegram;
-use GuzzleHttp\Client;
-use Telegram\Bot\Api;
-use App\Models\ChatId;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use App\Models\User;
-use App\Models\WaitingList;
-use Exception;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Cache;
-use App\Models\Pesanan;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
+use Telegram\Bot\FileUpload\InputFile;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
+use Telegram\Bot\Laravel\Facades\Telegram;
 
 class TelegramController extends Controller
 {
@@ -48,9 +49,44 @@ class TelegramController extends Controller
 
             if (isset($message['photo'])) {
 
-                $photo = end($message['photo']);
-                $imageUrl = $photo['file_id'];
-                $this->sendImage($chatId, $imageUrl);
+                $caption = isset($message['caption']) ? $message['caption'] : '';
+
+                if (!$caption) $responseText = 'Pastikan kode bayar di inputkan di caption foto.';
+
+                if ($caption) {
+                    $n_caption = str_replace("INV000", "", $caption);
+                    $cek = Pesanan::find($n_caption);
+
+                    if (!$cek) $responseText = 'Pembayaran dengan kode ' . $caption . ' Tidak ditemukan';
+
+
+                
+                    $photo = end($message['photo']);
+                    $photoId = $photo['file_id'];
+
+                    $telegram = new \Telegram\Bot\Api('6892237255:AAGYLLTmQkTCyxFFIFEYbGhZf0X5XJsChMo');
+                    $file = $telegram->getFile(['file_id' => $photoId]);
+                    $filePath = $file->getFilePath();
+
+                    $photoContents = file_get_contents('https://api.telegram.org/file/bot' . '6892237255:AAGYLLTmQkTCyxFFIFEYbGhZf0X5XJsChMo' . '/' . $filePath);
+                    $fileName = 'uploads/bukti_bayar/' . basename($filePath); // Constructing the path
+
+                    $cek->update([
+                        'bukti_bayar' =>basename($filePath),
+                        'tipe_bayar' =>'tf',
+                        'status' =>'terbayar belum terkonfirmasi',
+                    ]);
+
+                    $directory = public_path('uploads/bukti_bayar');
+                    if (!File::exists($directory)) {
+                        File::makeDirectory($directory, 0777, true, true);
+                    }
+
+                    File::put(public_path($fileName), $photoContents);
+                    $responseText = 'Terimakasih. Pembayaran sudah kami terima. Tunggu konfirmasi dari admin ya';
+
+                }
+                if (isset($responseText)) $this->sendTelegramMessage($chatId, $responseText);
             } else {
                 if (isset($message['from']['username'])) {
                     $username = $message['from']['username'];
@@ -121,9 +157,12 @@ class TelegramController extends Controller
                                         $responseText .= "Nama Barang: $barang->nama\n";
                                         $responseText .= "Kode Barang: $barang->kode_barang\n";
                                         $responseText .= "Mulai sewa: $tgl\n";
+
                                         $link = 'https://1587-114-142-168-2.ngrok-free.app/dashboard/pembayaran/create?brg_dtl=7';
 
                                         $responseText .= "Anda dapat segera melakukan pembayaran melalui link berikut ini " . $link . "\n";
+
+
 
 
                                         $responseText .= "\n";
@@ -374,7 +413,7 @@ class TelegramController extends Controller
                                 $link = config('base.url') . '/dashboard/pembayaran/create?brg_dtl=' . $data_order->id;
 
                                 $responseText .= "Anda dapat segera melakukan pembayaran melalui link berikut ini " . $link . "\n";
-                                $responseText .= "\n";
+                                $responseText .= "Atau dapat juga upload bukti pembayaran melalui telegram dengan memberikan caption INV000$data_order->id\n";
                                 // $responseText = 'terimakasih sudah di update';
 
                             }
@@ -409,17 +448,64 @@ class TelegramController extends Controller
         return response('Handling /help command');
     }
 
-    private function sendImage($chatId, $imagePath)
+    // private function sendImage($chatId, $imagePath)
+    // {
+    //     // Kirim gambar sebagai respons menggunakan API Bot Telegram
+    //     $response = Http::post('https://api.telegram.org/bot' . config('telegram.bot_token') . '/sendPhoto', [
+    //         'chat_id' => $chatId,
+    //         'photo' => $imagePath
+    //     ]);
+    //     $responseText = 'Halo 🖐 '.$imagePath;
+    //     $this->sendTelegramMessage($chatId, $responseText);
+    //     return $response->successful();
+    // }
+
+
+    private function processPhoto($photoData)
     {
-        // Kirim gambar sebagai respons menggunakan API Bot Telegram
-        $response = Http::post('https://api.telegram.org/bot' . config('telegram.bot_token') . '/sendPhoto', [
-            'chat_id' => $chatId,
-            'photo' => $imagePath
-        ]);
-        $responseText = 'Halo 🖐 '.$imagePath;
-        $this->sendTelegramMessage($chatId, $responseText);
-        return $response->successful();
+        // Periksa apakah kunci 'file_path' ada dalam array
+        if (isset($photoData['file_id'])) {
+            // Simpan foto ke folder publik
+            $photoPath = $this->savePhotoToStorage($photoData);
+
+            // Simpan informasi foto ke basis data
+            $this->savePhotoToDatabase($photoPath);
+        } else {
+            // Log pesan kesalahan atau lakukan penanganan lainnya
+            Log::error('File path not found in photo data:', $photoData);
+        }
     }
+    private function savePhotoToStorage($photoData)
+    {
+        // Buat path untuk penyimpanan foto
+        $photoPath = 'photos/' . $photoData['file_id'] . '.jpg';
+        $response = Http::post('https://api.telegram.org/bot' . '6892237255:AAGYLLTmQkTCyxFFIFEYbGhZf0X5XJsChMo' . '/sendPhoto', [
+            'chat_id' => 5881233108,
+            'photo' => $photoPath
+        ]);
+
+        // Dapatkan URL foto menggunakan file_id
+        $photoUrl = 'https://api.telegram.org/file/bot' . '6892237255:AAGYLLTmQkTCyxFFIFEYbGhZf0X5XJsChMo' . '/' . $photoData['file_id'];
+
+        // Unduh dan simpan foto ke folder storage
+        $fileContents = file_get_contents($photoUrl);
+        Storage::disk('public')->put($photoPath, $fileContents);
+
+        return $photoPath;
+    }
+
+    private function savePhotoToDatabase($photoPath)
+    {
+
+        $photo = Pesanan::first();
+        $photo->update([
+            'bukti_bayar' => basename($photoPath)
+        ]);
+        // filename = basename($photoPath);
+        // $photo->path = Storage::url($photoPath); // Path untuk diakses melalui web
+        // $photo->save();
+    }
+
 
 
 
