@@ -54,10 +54,10 @@
                                         @foreach ($data as $dt)
                                             <tr>
                                                 <td>{{ $x++ }}</td>
-                                                <td>{{ $dt->barangDetail->barang->nama }}</td>
+                                                <td>{{ $dt->barangDetail->barang->nama  ?? ''}}</td>
                                                 <td>{{ tgl_full($dt->mulai) }} - {{ tgl_full($dt->kembali) }}</td>
                                                 <td>{{ rp($dt->total) }}</td>
-                                                <td>{{ $dt->user->name }}</td>
+                                                <td>{{ $dt->user->name ?? '' }}</td>
                                                 @if ($dt->tipe_bayar == 'tf')
                                                     <td>
                                                         <a href="{{ url('/uploads/bukti_bayar/' . $dt->bukti_bayar) }}"
