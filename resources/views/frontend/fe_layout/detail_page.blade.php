@@ -168,7 +168,7 @@
                             minDate: today,
                             isInvalidDate: function(date) {
                                 var formattedDate = date.format('YYYY-MM-DD');
-                                return rentalDates.indexOf(formattedDate) !== -1;
+                                return rentalDates.includes(formattedDate);
                             },
                             locale: {
                                 format: 'YYYY-MM-DD', // Format tanggal
@@ -185,20 +185,15 @@
                             var chosenStartDate = picker.startDate;
                             var chosenEndDate = picker.endDate;
 
-                            var invalidDatesSelected = false;
-                            for (var i = chosenStartDate; i <= chosenEndDate; i.setDate(i
-                                .getDate() + 1)) {
+                            for (var i = new Date(chosenStartDate); i <= chosenEndDate; i.setDate(i
+                                    .getDate() + 1)) {
                                 var formattedDate = moment(i).format('YYYY-MM-DD');
                                 if (rentalDates.includes(formattedDate)) {
-                                    invalidDatesSelected = true;
-                                    break;
+                                    alert('Tanggal yang dipilih tidak tersedia untuk pemesanan!');
+                                    $('#daterange').data('daterangepicker').setStartDate(today);
+                                    $('#daterange').data('daterangepicker').setEndDate(today);
+                                    return;
                                 }
-                            }
-
-                            if (invalidDatesSelected) {
-                                alert('Tanggal yang dipilih tidak tersedia untuk pemesanan!');
-                                $('#daterange').data('daterangepicker').setStartDate(today);
-                                $('#daterange').data('daterangepicker').setEndDate(today);
                             }
                         });
                     },
