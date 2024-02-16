@@ -152,51 +152,60 @@
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
         <script>
-           $(function() {
-    var today = new Date();
-    var barang_id = 4;
-    var maxDate = new Date();
-    maxDate.setDate(today.getDate() + 10);
+            $(function() {
+                var today = new Date();
+                var barang_id = {!! json_encode($data->id) !!};
+                var maxDate = new Date();
 
-    // Ajax call to fetch rental dates from the backend
-    $.ajax({
-        url: '/dashboard/pesanan/get_data?_i=' + barang_id,
-        method: 'GET',
-        success: function(rentalDates) {
-            $('#daterange').daterangepicker({
-                startDate: today,
-                minDate: today,
-                maxDate: maxDate,
+                $.ajax({
+                    url: '/dashboard/pesanan/get_data?_i=' + barang_id,
+                    method: 'GET',
+                    success: function(rentalDates) {
+                        rentalDates = Object.values(rentalDates); // Mengonversi objek ke array
 
-                isInvalidDate: function(date) {
-                    var formattedDate = date.format('YYYY-MM-DD');
-                    return rentalDates.indexOf(formattedDate) !== -1;
-                },
-                locale: {
-                    format: 'YYYY-MM-DD', // Format tanggal
-                    cancelLabel: 'Batal',
-                    applyLabel: 'Pilih',
-                    daysOfWeek: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
-                    monthNames: [
-                        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                        'Juli', 'Agustus', 'September', 'Oktober', 'November',
-                        'Desember'
-                    ]
-                }
-            }).on('apply.daterangepicker', function(ev, picker) {
-                var chosenStartDate = picker.startDate;
-                var chosenEndDate = picker.endDate;
+                        $('#daterange').daterangepicker({
+                            startDate: today,
+                            minDate: today,
+                            isInvalidDate: function(date) {
+                                var formattedDate = date.format('YYYY-MM-DD');
+                                return rentalDates.indexOf(formattedDate) !== -1;
+                            },
+                            locale: {
+                                format: 'YYYY-MM-DD', // Format tanggal
+                                cancelLabel: 'Batal',
+                                applyLabel: 'Pilih',
+                                daysOfWeek: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+                                monthNames: [
+                                    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                                    'Juli', 'Agustus', 'September', 'Oktober', 'November',
+                                    'Desember'
+                                ]
+                            }
+                        }).on('apply.daterangepicker', function(ev, picker) {
+                            var chosenStartDate = picker.startDate;
+                            var chosenEndDate = picker.endDate;
 
-                if (chosenEndDate && rentalDates.includes(chosenEndDate.format('YYYY-MM-DD'))) {
-                    alert('Tanggal yang dipilih tidak tersedia untuk pemesanan!');
-                }
+                            var invalidDatesSelected = false;
+                            for (var i = chosenStartDate; i <= chosenEndDate; i.setDate(i
+                                .getDate() + 1)) {
+                                var formattedDate = moment(i).format('YYYY-MM-DD');
+                                if (rentalDates.includes(formattedDate)) {
+                                    invalidDatesSelected = true;
+                                    break;
+                                }
+                            }
+
+                            if (invalidDatesSelected) {
+                                alert('Tanggal yang dipilih tidak tersedia untuk pemesanan!');
+                                $('#daterange').data('daterangepicker').setStartDate(today);
+                                $('#daterange').data('daterangepicker').setEndDate(today);
+                            }
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching rental dates:', error);
+                    }
+                });
             });
-        },
-        error: function(xhr, status, error) {
-            console.error('Error fetching rental dates:', error);
-        }
-    });
-});
-
         </script>
     @endpush

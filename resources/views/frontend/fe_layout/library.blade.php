@@ -68,7 +68,7 @@
 
 window.addEventListener('pageshow', function(event) { 
   if (event.persisted) {
-    $('body').loading('stop')
+    // $('body').loading('stop')
   }
 });
 
